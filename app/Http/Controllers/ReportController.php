@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\ReportSettings;
 use Google_Service_Exception;
 use Google_Service_Sheets;
 use Illuminate\Http\Request;
@@ -8,6 +9,30 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
+    public function get(Request $request)
+    {
+        $batch = $request->get('batch');
+        $year = $request->get('year');
+        $session = $request->get('session');
+        $presenter_id = $request->get('presenter_id');
+
+        $report = ReportSettings::where('batch', '=', $batch)
+            ->where('year', '=', $year)
+            ->where('session', '=', $session)
+            ->where('presenter_id', '=', $presenter_id)
+            ->first();
+
+        if (empty($report)) {
+            $response = [
+                'success' => true,
+                'message' => 'OK',
+                'data' => []
+            ];
+        }
+
+        return response()->json($this->jsonResponse($report));
+    }
+
     public function generate(Request $request)
     {
         /**
@@ -19,6 +44,12 @@ class ReportController extends Controller
         }
 
         $spr_id = $request->get('spr_id');
+        $range = $request->get('range');
+        $batch = $request->get('batch');
+        $year = $request->get('year');
+        $session = $request->get('session');
+        $presenter_id = $request->get('presenter_id');
+
         $idx_peng_materi = $request->get('penguasaan_materi');
         $idx_sis_penyajian = $request->get('sistematika_penyajian');
         $idx_mtd_penyajian = $request->get('metode_penyajian');
@@ -27,7 +58,7 @@ class ReportController extends Controller
 
         try {
             $svc = new Google_Service_Sheets($google_client);
-            $result = $svc->spreadsheets_values->get($spr_id, 'RyanJauwena!A1:L231');
+            $result = $svc->spreadsheets_values->get($spr_id, $range);
 
         } catch (Google_Service_Exception $ex) {
             if ($ex->getCode() == 401) {
@@ -63,13 +94,59 @@ class ReportController extends Controller
         $avg_peng_waktu = $sum_peng_waktu/$ct;
         $avg_alat_bantu = $sum_alat_bantu/$ct;
 
+        $report = $this->saveReportSettings([
+            'spr_id' => $spr_id,
+            'range' => $range,
+            'year' => $year,
+            'batch' => $batch,
+            'session' => $session,
+            'presenter_id' => $presenter_id,
+            'penguasaan_materi' => $avg_peng_materi,
+            'sistematika_penyajian' => $avg_sis_penyajian,
+            'metode_penyajian' => $avg_mtd_penyajian,
+            'pengaturan_waktu' => $avg_peng_waktu,
+            'alat_bantu' => $avg_alat_bantu
+        ]);
+
+        return response()->json($this->jsonResponse($report));
+    }
+
+    protected function saveReportSettings($data)
+    {
+        $report = ReportSettings::where('spreadsheets_id', '=', $data['spr_id'])->where('range', '=', $data['range'])->first();
+
+        if (empty($report)) {
+            $report = new ReportSettings();
+            $report->spreadsheets_id = $data['spr_id'];
+            $report->range = $data['range'];
+        }
+
+        $report->year = $data['year'];
+        $report->batch = $data['batch'];
+        $report->session = $data['session'];
+        $report->presenter_id = $data['presenter_id'];
+        $report->penguasaan_materi = $data['penguasaan_materi'];
+        $report->sistematika_penyajian = $data['sistematika_penyajian'];
+        $report->metode_penyajian = $data['metode_penyajian'];
+        $report->pengaturan_waktu = $data['pengaturan_waktu'];
+        $report->alat_bantu = $data['alat_bantu'];
+
+        if (!$report->save()){
+            throw new \Exception('Failed to save report settings', 500);
+        }
+
+        return $report;
+    }
+
+    protected function jsonResponse(ReportSettings $report)
+    {
         $vals = [
             ['Rata-rata', 'Score'],
-            ['Penguasaan Materi', $avg_peng_materi],
-            ['Sistematika Penyajian', $avg_sis_penyajian],
-            ['Metode Penyajian', $avg_mtd_penyajian],
-            ['Pengaturan Waktu', $avg_peng_waktu],
-            ['Penggunaan Alat Bantu', $avg_alat_bantu]
+            ['Penguasaan Materi', floatval($report->penguasaan_materi)],
+            ['Sistematika Penyajian', floatval($report->sistematika_penyajian)],
+            ['Metode Penyajian', floatval($report->metode_penyajian)],
+            ['Pengaturan Waktu', floatval($report->pengaturan_waktu)],
+            ['Penggunaan Alat Bantu', floatval($report->alat_bantu)]
         ];
 
         $response = [
@@ -78,6 +155,6 @@ class ReportController extends Controller
             'data' => $vals
         ];
 
-        return response()->json($response);
+        return $response;
     }
 }

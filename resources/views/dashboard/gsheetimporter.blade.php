@@ -37,6 +37,48 @@
                             </div>
                         </div>
                     </div>
+                    <div class="fields">
+                        <div class="six wide field">
+                            <label>Spreadsheets ID </label>
+                            <input type="text" name="spr_id" id="spr_id" placeholder="Spreadsheets ID">
+                        </div>
+                        <div class="six wide field">
+                            <label>Range</label>
+                            <input type="text" name="range" id="range" placeholder="Range" value="RyanJauwena!A1:L231">
+                        </div>
+                    </div>
+
+                    <div class="fields">
+                        <div class="one field">
+                            <label>Penguasaan Materi</label>
+                            <input type="text" name="penguasaan_materi" id="penguasaan_materi" maxlength="2"
+                                   placeholder="Index of penguasaan materi">
+                        </div>
+
+                        <div class="one field">
+                            <label>Sistematika Penyajian</label>
+                            <input type="text" name="sistematika_penyajian" id="sistematika_penyajian" maxlength="2"
+                                   placeholder="Index of sistematika penyajian">
+                        </div>
+
+                        <div class="one field">
+                            <label>Gaya atau Metode Penyajian</label>
+                            <input type="text" name="metode_penyajian" id="metode_penyajian" maxlength="2"
+                                   placeholder="Index of metode penyajian">
+                        </div>
+
+                        <div class="one field">
+                            <label>Pengaturan Waktu</label>
+                            <input type="text" name="pengaturan_waktu" id="pengaturan_waktu" maxlength="2"
+                                   placeholder="Index of pengaturan waktu">
+                        </div>
+
+                        <div class="one field">
+                            <label>Penggunaan Alat Bantu</label>
+                            <input type="text" name="alat_bantu" id="alat_bantu" maxlength="2"
+                                   placeholder="Index of penggunaan alat bantu">
+                        </div>
+                    </div>
 
                     <button class="ui button submit-spreadsheet-btn" type="submit">Submit</button>
                 </form>
@@ -69,7 +111,6 @@
                 hAxis: {
                     title: 'Score',
                     minValue: 0,
-                    format: 'decimal',
                 },
                 vAxis: {
                     title: 'Rata-rata'
@@ -81,9 +122,9 @@
         }
 
         $('.submit-spreadsheet-btn').api({
-            action: 'get report',
+            action: 'generate report',
             serializeForm: true,
-            method: 'GET',
+            method: 'POST',
             on: 'click',
             beforeSend: function (settings) {
                 // form data is editable in before send
@@ -101,10 +142,16 @@
                 return response;
             },
             onError: function (errorMessage, element, xhr) {
-                alert('Whoops something went wrong. Contact your administrator.');
-                console.log(xhr.status);
-                console.log(errorMessage);
-                window.location.href = '{{ url('/') }}';
+
+                if (xhr.status == 401) {
+                    console.log(errorMessage);
+                    window.location.href = '{{ url('auth/google') }}';
+                } else {
+                    alert('Whoops something went wrong. Contact your administrator.');
+                    console.log(xhr.status);
+                    console.log(errorMessage);
+                    window.location.href = '{{ url('/') }}';
+                }
             }
         });
 

@@ -18,7 +18,8 @@
     $.fn.api.settings.api = {
         'get feedback field' : '/v1/feedback/field',
         'get data' : '/v1/data',
-        'generate report': '/v1/report'
+        'generate report': '/v1/report',
+        'get report': '/v1/report'
     };
 </script>
 @yield('script')

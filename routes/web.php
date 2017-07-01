@@ -21,13 +21,30 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
         return view('dashboard.index');
     });
 
+    Route::get('gsheet', function () {
+        return view('dashboard.gsheetimporter');
+    });
+
     Route::get('report', function () {
         return view('dashboard.report');
     });
 });
 
 Route::prefix('v1')->group(function() {
+    Route::get('report', 'ReportController@get');
     Route::post('report', 'ReportController@generate');
+    Route::get('presenter', function(Request $request) {
+        $fields = App\Presenter::all();
+        $data = [];
+        foreach ($fields as $field) {
+            $data[] = ['name' => $field->name , 'value' => $field->id , 'text' => $field->name];
+        }
+        $response['success'] = true;
+        $response['results'] = $data;
+
+        return response()->json($response);
+    });
+
     Route::get('feedback/field', function(Request $request) {
         $fields = App\FeedbackField::all();
         $data = [];

@@ -15,9 +15,14 @@
                 </form>
             </div>
         </div>
+        <a class="item" href="{{ url('dashboard/gsheet') }}">
+            <i class="block layout icon"></i>
+            Import from Google Spreadsheets
+        </a>
+
         <a class="item" href="{{ url('dashboard/report') }}">
             <i class="block layout icon"></i>
-            Report
+            View Report
         </a>
     </div>
     <div class="pusher">
