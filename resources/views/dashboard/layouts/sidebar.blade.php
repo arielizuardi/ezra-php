@@ -2,14 +2,17 @@
     <div class="ui visible left vertical sidebar menu">
         <div class="item">
             <div class="ui center aligned container">
-                <img class="ui tiny avatar image" src="https://lh3.googleusercontent.com/-nie7hvurjew/AAAAAAAAAAI/AAAAAAAAAhE/rl031rVEtR0/photo.jpg">
+                <img class="ui tiny avatar image" src="{{ \Auth::user()->avatar }}">
                 <br/>
                 <br/>
                 <div class="header">
-                    Arie Ardaya Lizuardi
+                    {{ \Auth::user()->name }}
                 </div>
                 <br/>
-                <a href="#">Logout</a>
+                <form action="{{ url('logout') }}" method="POST">
+                    {{ csrf_field() }}
+                    <button class="ui button" type="submit">Logout</button>
+                </form>
             </div>
         </div>
         <a class="item" href="{{ url('dashboard/report') }}">

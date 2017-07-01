@@ -91,20 +91,30 @@
             on: 'click',
             beforeSend: function (settings) {
                 // form data is editable in before send
-                $('#report_dimmer').addClass('active')
+                $('#report_dimmer').addClass('active');
                 return settings;
             },
             onResponse: function (response) {
                 var data = response.data;
-                console.log(data);
                 // make some adjustments to response
-
                 var gdata = google.visualization.arrayToDataTable(data);
 
                 google.charts.setOnLoadCallback(drawMaterial(gdata));
 
                 $('#report_dimmer').removeClass('active');
                 return response;
+            },
+            onError: function(errorMessage, element, xhr) {
+
+                if (xhr.status == 401) {
+                    console.log(errorMessage);
+                    window.location.href = '{{ url('auth/google') }}';
+                } else {
+                    alert('Whoops something went wrong. Contact your administrator.');
+                    console.log(xhr.status);
+                    console.log(errorMessage);
+                    window.location.href = '{{ url('/') }}';
+                }
             }
         });
     </script>

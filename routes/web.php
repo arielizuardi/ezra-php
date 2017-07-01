@@ -15,28 +15,35 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function() {
-    return view('dashboard.index');
+
+Route::prefix('dashboard')->middleware('auth')->group(function () {
+    Route::get('/', function () {
+        return view('dashboard.index');
+    });
+
+    Route::get('report', function () {
+        return view('dashboard.report');
+    });
 });
 
-Route::post('v1/report', 'ReportController@generate');
+Route::prefix('v1')->group(function() {
+    Route::post('report', 'ReportController@generate');
+    Route::get('feedback/field', function(Request $request) {
+        $fields = App\FeedbackField::all();
+        $data = [];
+        foreach ($fields as $field) {
+            $data[] = ['name' => $field->name , 'value' => $field->id , 'text' => $field->name];
+        }
+        $response['success'] = true;
+        $response['results'] = $data;
 
-Route::get('/dashboard/report', function() {
-    return view('dashboard.report');
+        return response()->json($response);
+    });
 });
 
-Route::get('v1/feedback/field', function(Request $request) {
-    $fields = App\FeedbackField::all();
-    $data = [];
-    foreach ($fields as $field) {
-        $data[] = ['name' => $field->name , 'value' => $field->id , 'text' => $field->name];
-    }
-    $response['success'] = true;
-    $response['results'] = $data;
+Route::get('auth/google', 'Auth\LoginController@redirectToProvider');
+Route::get('auth/google/callback', 'Auth\LoginController@handleProviderCallback');
 
-    return response()->json($response);
-});
+Auth::routes();
 
-
-Route::get('login/google', 'Auth\LoginController@redirectToProvider');
-Route::get('login/google/callback', 'Auth\LoginController@handleProviderCallback');
+Route::get('/home', 'HomeController@index')->name('home');

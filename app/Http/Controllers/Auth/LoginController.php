@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use Google_Service_Sheets;
 use Google_Client;
@@ -30,7 +32,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/dashboard';
 
     /**
      * Create a new controller instance.
@@ -70,6 +72,9 @@ class LoginController extends Controller
     public function handleProviderCallback()
     {
         $user = Socialite::driver('google')->user();
+        $authUser = $this->findOrCreateUser($user, 'google');
+        Auth::login($authUser, true);
+
         $google_client_token = [
             'access_token' => $user->token,
             'refresh_token' => $user->refreshToken,
@@ -77,11 +82,35 @@ class LoginController extends Controller
         ];
 
         $client = new Google_Client();
-        $client->setApplicationName("Laravel");
+        $client->setApplicationName("Ezra");
         $client->setDeveloperKey(env('GOOGLE_SERVER_KEY'));
         $client->setAccessToken(json_encode($google_client_token));
+
         session(['gclient' => $client]);
 
         return redirect('/dashboard/report');
+    }
+
+    /**
+     * If a user has registered before using social auth, return the user
+     * else, create a new user object.
+     * @param  $user Socialite user object
+     * @param $provider Social auth provider
+     * @return  User
+     */
+    public function findOrCreateUser($user, $provider)
+    {
+        $authUser = User::where('provider_id', $user->id)->first();
+        if ($authUser) {
+            return $authUser;
+        }
+        return User::create([
+            'name'     => $user->name,
+            'email'    => $user->email,
+            'provider' => $provider,
+            'provider_id' => $user->id,
+            'provider_access_token' => $user->token,
+            'avatar' => str_replace('?sz=50', '', $user->avatar),
+        ]);
     }
 }

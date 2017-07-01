@@ -5,91 +5,65 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>Ezra</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" type="text/css" href="{{ asset('css/semantic.min.css') }}">
 
         <!-- Styles -->
         <style>
-            html, body {
-                background-color: #fff;
-                color: #636b6f;
-                font-family: 'Raleway', sans-serif;
-                font-weight: 100;
-                height: 100vh;
-                margin: 0;
+            body {
+                background: url(images/main.jpg) no-repeat center center fixed;
+                -webkit-background-size: cover;
+                -moz-background-size: cover;
+                -o-background-size: cover;
+                background-size: cover;
             }
 
-            .full-height {
-                height: 100vh;
+            body > .grid {
+                height: 100%;
+            }
+            /*body{*/
+                /*position:relative;*/
+                /*background: url(images/main.jpg) no-repeat center center fixed;*/
+
+                /*width:100%;*/
+                /*height:100%;*/
+                /*margin:0*/
+            /*}*/
+            body:after{
+                position:fixed;
+                content:"";
+                top:0;
+                left:0;
+                right:0;
+                bottom:0;
+                background:rgba(0,0,0,0.7);
+                z-index:-1;
             }
 
-            .flex-center {
-                align-items: center;
-                display: flex;
-                justify-content: center;
-            }
-
-            .position-ref {
-                position: relative;
-            }
-
-            .top-right {
-                position: absolute;
-                right: 10px;
-                top: 18px;
-            }
-
-            .content {
-                text-align: center;
-            }
-
-            .title {
-                font-size: 84px;
-            }
-
-            .links > a {
-                color: #636b6f;
-                padding: 0 25px;
-                font-size: 12px;
-                font-weight: 600;
-                letter-spacing: .1rem;
-                text-decoration: none;
-                text-transform: uppercase;
-            }
-
-            .m-b-md {
-                margin-bottom: 30px;
-            }
         </style>
+
+        <script
+                src="https://code.jquery.com/jquery-3.1.1.min.js"
+                integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+                crossorigin="anonymous"></script>
+        <script src="{{ asset('js/semantic.min.js') }}"></script>
     </head>
     <body>
-        <div class="flex-center position-ref full-height">
-            @if (Route::has('login'))
-                <div class="top-right links">
-                    @if (Auth::check())
-                        <a href="{{ url('/home') }}">Home</a>
-                    @else
-                        <a href="{{ url('/login') }}">Login</a>
-                        <a href="{{ url('/register') }}">Register</a>
-                    @endif
-                </div>
-            @endif
 
-            <div class="content">
-                <div class="title m-b-md">
-                    Laravel
-                </div>
-
-                <div class="links">
-                    <a href="https://laravel.com/docs">Documentation</a>
-                    <a href="https://laracasts.com">Laracasts</a>
-                    <a href="https://laravel-news.com">News</a>
-                    <a href="https://forge.laravel.com">Forge</a>
-                    <a href="https://github.com/laravel/laravel">GitHub</a>
-                </div>
-            </div>
+    <div class="ui middle aligned right aligned container grid">
+            <div class="column">
+                <h1 class="ui inverted header">
+                    Welcome to Community Of Leaders
+                </h1>
+                <a style="background-color: #4285F4" class="ui google plus huge button" href="{{ url('auth/google') }}">
+                    <i class="google icon"></i>
+                    Sign in with Google
+                </a>
         </div>
+    </div>
+
     </body>
 </html>

@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use Google_Service_Exception;
 use Google_Service_Sheets;
 use Illuminate\Http\Request;
 
@@ -24,8 +25,21 @@ class ReportController extends Controller
         $idx_peng_waktu = $request->get('pengaturan_waktu');
         $idx_alat_bantu = $request->get('alat_bantu');
 
-        $svc = new Google_Service_Sheets($google_client);
-        $result = $svc->spreadsheets_values->get($spr_id, 'RyanJauwena!A1:L231');
+        try {
+            $svc = new Google_Service_Sheets($google_client);
+            $result = $svc->spreadsheets_values->get($spr_id, 'RyanJauwena!A1:L231');
+
+        } catch (Google_Service_Exception $ex) {
+            if ($ex->getCode() == 401) {
+                \Auth::guard()->logout();
+                $request->session()->flush();
+                $request->session()->regenerate();
+
+                return response()->json(['success'=> false, 'error' => $ex->getMessage()])->setStatusCode(401);
+            }
+        } catch (\Exception $ex) {
+            return response()->json(['success'=> false, 'error' => $ex->getMessage()])->setStatusCode(401);
+        }
 
         $sum_peng_materi = 0;
         $sum_sis_penyajian = 0;
