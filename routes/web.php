@@ -28,11 +28,21 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::get('report', function () {
         return view('dashboard.report');
     });
+
+    Route::get('facilitator/gsheet', function () {
+        return view('dashboard.facilgsheetimporter');
+    });
+
+    Route::get('facilitator/report', function () {
+        return view('dashboard.facilreport');
+    });
 });
 
 Route::prefix('v1')->group(function() {
     Route::get('report', 'ReportController@get');
     Route::post('report', 'ReportController@generate');
+    Route::post('report/facilitator', 'ReportController@generateReportFacilitator');
+
     Route::get('presenter', function(Request $request) {
         $fields = App\Presenter::all();
         $data = [];
@@ -62,5 +72,3 @@ Route::get('auth/google', 'Auth\LoginController@redirectToProvider');
 Route::get('auth/google/callback', 'Auth\LoginController@handleProviderCallback');
 
 Auth::routes();
-
-Route::get('/home', 'HomeController@index')->name('home');

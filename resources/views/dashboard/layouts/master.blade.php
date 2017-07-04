@@ -19,6 +19,7 @@
         'get feedback field' : '/v1/feedback/field',
         'get data' : '/v1/data',
         'generate report': '/v1/report',
+        'generate report facilitator': '/v1/report/facilitator',
         'get report': '/v1/report'
     };
 </script>

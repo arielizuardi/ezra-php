@@ -1,6 +1,8 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Facilitator;
+use App\FacilitatorReport;
 use App\ReportSettings;
 use Google_Service_Exception;
 use Google_Service_Sheets;
@@ -156,5 +158,131 @@ class ReportController extends Controller
         ];
 
         return $response;
+    }
+
+    public function generateReportFacilitator(Request $request)
+    {
+        /**
+         * @var $gclient \Google_Client
+         */
+        $google_client = session('gclient');
+        if (!$google_client) {
+            dd('Oops something wrong with client');
+        }
+
+        $spr_id = $request->get('spr_id');
+        $range = $request->get('range');
+        $batch = $request->get('batch');
+        $year = $request->get('year');
+
+        $idx_nama_facilitator = $request->get('nama_facilitator');
+        $idx_menjelaskan_tujuan = $request->get('menjelaskan_tujuan');
+        $idx_membangun_hubungan = $request->get('membangun_hubungan');
+        $idx_mengajak_berdiskusi = $request->get('mengajak_berdiskusi');
+        $idx_memimpin_proses_diskusi = $request->get('memimpin_proses_diskusi');
+        $idx_mampu_menjawab_pertanyaan = $request->get('mampu_menjawab_pertanyaan');
+        $idx_kedalaman_materi = $request->get('kedalaman_materi');
+        $idx_penampilan = $request->get('penampilan');
+
+        try {
+            $svc = new Google_Service_Sheets($google_client);
+            $result = $svc->spreadsheets_values->get($spr_id, $range);
+
+        } catch (Google_Service_Exception $ex) {
+            if ($ex->getCode() == 401) {
+                \Auth::guard()->logout();
+                $request->session()->flush();
+                $request->session()->regenerate();
+
+                return response()->json(['success'=> false, 'error' => $ex->getMessage()])->setStatusCode(401);
+            }
+        } catch (\Exception $ex) {
+            return response()->json(['success'=> false, 'error' => $ex->getMessage()])->setStatusCode(401);
+        }
+
+        $values = [];
+
+        foreach ($result->values as $i => $value) {
+
+            if ($i == 0) {
+                continue;
+            }
+
+            $values[] = [
+                'nama' => $value[$idx_nama_facilitator],
+                'menjelaskan_tujuan' => isset($value[$idx_menjelaskan_tujuan]) ? $value[$idx_menjelaskan_tujuan]: 0,
+                'membangun_hubungan' => isset($value[$idx_membangun_hubungan]) ? $value[$idx_membangun_hubungan] : 0 ,
+                'mengajak_berdiskusi' => isset($value[$idx_mengajak_berdiskusi]) ? $value[$idx_mengajak_berdiskusi] : 0,
+                'memimpin_proses_diskusi' => isset($value[$idx_memimpin_proses_diskusi]) ? $value[$idx_memimpin_proses_diskusi] : 0 ,
+                'mampu_menjawab_pertanyaan' => isset($value[$idx_mampu_menjawab_pertanyaan]) ? $value[$idx_mampu_menjawab_pertanyaan] : 0,
+                'kedalaman_materi' => isset($value[$idx_kedalaman_materi]) ? $value[$idx_kedalaman_materi] : 0,
+                'penampilan' => isset($value[$idx_penampilan]) ? $value[$idx_penampilan] : 0
+            ];
+        }
+
+        $collection = collect($values);
+        $keys = $collection->groupBy('nama')->keys();
+        foreach ($keys as $key) {
+            $explodes = explode('=', $key);
+            $name = trim($explodes[1]);
+            $facilitator = Facilitator::where('name', '=', $name)->first();
+            if (empty($facilitator)) {
+                $facilitator = new Facilitator();
+                $facilitator->name = $name;
+                if (!$facilitator->save()) {
+                    throw new \Exception('Failed to save facilitator', 500);
+                }
+            }
+        }
+
+        $response = [];
+        foreach ($keys as $key) {
+            $explodes = explode('=', $key);
+            $name = trim($explodes[1]);
+
+            $facilitator_scores = $collection->where('nama', $key)->all();
+
+            $ct = 0;
+            $sum_menjelaskan_tujuan = 0;
+            $sum_membangun_hubungan = 0;
+            $sum_mengajak_berdiskusi = 0;
+            $sum_memimpin_proses_diskusi = 0;
+            $sum_mampu_menjawab_pertanyaan = 0;
+            $sum_kedalaman_materi = 0;
+            $sum_penampilan = 0;
+
+            foreach ($facilitator_scores as $facilitator_score) {
+                $sum_menjelaskan_tujuan += $facilitator_score['menjelaskan_tujuan'];
+                $sum_membangun_hubungan += $facilitator_score['membangun_hubungan'];
+                $sum_mengajak_berdiskusi += $facilitator_score['mengajak_berdiskusi'];
+                $sum_memimpin_proses_diskusi += $facilitator_score['memimpin_proses_diskusi'];
+                $sum_mampu_menjawab_pertanyaan += $facilitator_score['mampu_menjawab_pertanyaan'];
+                $sum_kedalaman_materi += $facilitator_score['kedalaman_materi'];
+                $sum_penampilan += $facilitator_score['penampilan'];
+                $ct++;
+            }
+
+            $facilitator = Facilitator::where('name', '=', $name)->first();
+            $response[$name] = [
+                'batch' => $batch,
+                'year' => $year,
+                'facilitator_id' => $facilitator->id,
+                'menjelaskan_tujuan' => floatval($sum_menjelaskan_tujuan/$ct),
+                'membangun_hubungan' => floatval( $sum_membangun_hubungan/$ct),
+                'mengajak_berdiskusi' => floatval($sum_mengajak_berdiskusi/$ct),
+                'memimpin_proses_diskusi' => floatval($sum_memimpin_proses_diskusi/$ct),
+                'mampu_menjawab_pertanyaan' => floatval($sum_mampu_menjawab_pertanyaan/$ct),
+                'kedalaman_materi' => floatval($sum_kedalaman_materi/$ct),
+                'penampilan' => floatval($sum_penampilan/$ct)
+            ];
+
+
+            $facilitator_report = new FacilitatorReport($response[$name]);
+            if (!$facilitator_report->save()) {
+                throw new \Exception('Failed to save facilitator report', 500);
+            }
+        }
+
+        dd($response);
     }
 }

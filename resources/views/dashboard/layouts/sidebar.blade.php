@@ -16,13 +16,25 @@
             </div>
         </div>
         <a class="item" href="{{ url('dashboard/gsheet') }}">
-            <i class="block layout icon"></i>
-            Import from Google Spreadsheets
+            <i class="block table icon"></i>
+            <i class="block google icon"></i>
+            Import from Google Spreadsheets for Presenter
         </a>
 
         <a class="item" href="{{ url('dashboard/report') }}">
-            <i class="block layout icon"></i>
-            View Report
+            <i class="block bar chart icon"></i>
+            View Report Presenter
+        </a>
+
+        <a class="item" href="{{ url('dashboard/facilitator/gsheet') }}">
+            <i class="block table icon"></i>
+            <i class="block google icon"></i>
+            Import from Google Spreadsheets for Facilitator
+        </a>
+
+        <a class="item" href="{{ url('dashboard/facilitator/report') }}">
+            <i class="block bar chart icon"></i>
+            View Report Facilitator
         </a>
     </div>
     <div class="pusher">
