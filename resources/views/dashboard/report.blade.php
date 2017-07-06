@@ -44,7 +44,7 @@
         </div>
         <div class="row">
             <div class="ten wide column">
-                <div id="chart_div"></div>
+                <div id="chart_div" style="width: 1000px; height: 500px;"></div>
                 <div class="ui">
                     <div class="ui centered inline loader" id="report_dimmer">
                     </div>

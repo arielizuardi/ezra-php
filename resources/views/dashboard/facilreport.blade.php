@@ -23,7 +23,7 @@
                         <div class="four field">
                             <label>Facilitator</label>
                             <div class="ui search selection dropdown">
-                                <input type="hidden" name="presenter_id"/>
+                                <input type="hidden" name="facilitator_id"/>
                                 <i class="dropdown icon"></i>
                                 <input type="text" class="search"/>
                                 <div class="default text">
@@ -39,7 +39,7 @@
         </div>
         <div class="row">
             <div class="ten wide column">
-                <div id="chart_div"></div>
+                <div id="chart_div" style="width: 1000px; height: 500px;"></div>
                 <div class="ui">
                     <div class="ui centered inline loader" id="report_dimmer">
                     </div>
@@ -59,12 +59,12 @@
         function drawMaterial(google_visualization_data) {
             var materialOptions = {
                 chart: {
-                    title: 'Report Presenter'
+                    title: 'Report Facilitator'
                 },
                 hAxis: {
                     title: 'Score',
                     minValue: 0,
-                    format: 'decimal',
+                    format: 'decimal'
                 },
                 vAxis: {
                     title: 'Rata-rata'
@@ -76,7 +76,7 @@
         }
 
         $('.submit-spreadsheet-btn').api({
-            action: 'get report',
+            action: 'generate report facilitator',
             serializeForm: true,
             method: 'GET',
             on: 'click',
@@ -99,13 +99,13 @@
                 alert('Whoops something went wrong. Contact your administrator.');
                 console.log(xhr.status);
                 console.log(errorMessage);
-                window.location.href = '{{ url('/') }}';
+                //window.location.href = '{{ url('/') }}';
             }
         });
 
         $('.ui.dropdown').dropdown({
             apiSettings: {
-                url: '//ezra.dev/v1/presenter'
+                url: '//ezra.dev/v1/facilitator'
             }
         });
     </script>

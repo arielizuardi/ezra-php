@@ -150,7 +150,7 @@
                     alert('Whoops something went wrong. Contact your administrator.');
                     console.log(xhr.status);
                     console.log(errorMessage);
-                    window.location.href = '{{ url('/') }}';
+                    //window.location.href = '{{ url('/') }}';
                 }
             }
         });

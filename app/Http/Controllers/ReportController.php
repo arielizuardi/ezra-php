@@ -11,6 +11,13 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
+    protected $request;
+
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
+
     public function get(Request $request)
     {
         $batch = $request->get('batch');
@@ -33,6 +40,59 @@ class ReportController extends Controller
         }
 
         return response()->json($this->jsonResponse($report));
+    }
+
+    public function getFacilitatorReport(Request $request)
+    {
+        $batch = $request->get('batch');
+        $year = $request->get('year');
+        $facilitator_id = $request->get('facilitator_id');
+
+        $facilitator = Facilitator::where('id', '=', $facilitator_id)->first();
+
+        $report = FacilitatorReport::where('batch', '=', $batch)
+            ->where('year', '=', $year)
+            ->where('facilitator_id', '=', $facilitator_id)
+            ->first();
+
+        if (empty($report)) {
+            $response = [
+                'success' => true,
+                'message' => 'OK',
+                'data' => []
+            ];
+
+            return response()->json($response);
+        }
+
+        $avg_all_class = \DB::table('facilitator_report')->selectRaw('
+            AVG(menjelaskan_tujuan) as menjelaskan_tujuan,
+            AVG(membangun_hubungan) as membangun_hubungan,
+            AVG(mengajak_berdiskusi) as mengajak_berdiskusi,
+            AVG(memimpin_proses_diskusi) as memimpin_proses_diskusi,
+            AVG(mampu_menjawab_pertanyaan) as mampu_menjawab_pertanyaan,
+            AVG(kedalaman_materi) as kedalaman_materi,
+            AVG(penampilan) as penampilan
+        ')->where('batch', '=', $batch)->where('year', '=', $year)->first();
+
+        $vals = [
+            ['Metrics', $facilitator->name.' Score', 'Average Class Facilitator Score'],
+            ['Mampu menjelaskan tujuan dan manfaat kelas ini dengan baik', floatval($report->menjelaskan_tujuan), floatval($avg_all_class->menjelaskan_tujuan)],
+            ['Membangun hubungan baik dengan saya', floatval($report->membangun_hubungan), floatval($avg_all_class->membangun_hubungan)],
+            ['Mampu mengajak peserta untuk berdiskusi', floatval($report->mengajak_berdiskusi), floatval($avg_all_class->mengajak_berdiskusi)],
+            ['Mampu membuat proses diskusi berjalan dengan baik', floatval($report->memimpin_proses_diskusi), floatval($avg_all_class->memimpin_proses_diskusi)],
+            ['Mampu menjawab pertanyaan concern yang ada selama diskusi kelompok', floatval($report->mampu_menjawab_pertanyaan), floatval($avg_all_class->mampu_menjawab_pertanyaan)],
+            ['Memiliki kedalaman materi yang dibutuhkan', floatval($report->kedalaman_materi),  floatval($avg_all_class->kedalaman_materi)],
+            ['Bersikap profesional, berbusana rapi serta berperilaku & bertutur kata sopan', floatval($report->penampilan), floatval($avg_all_class->penampilan)]
+        ];
+
+        $response = [
+            'success' => true,
+            'message' => 'OK',
+            'data' => $vals
+        ];
+
+        return response()->json($response);
     }
 
     public function generate(Request $request)
@@ -58,20 +118,25 @@ class ReportController extends Controller
         $idx_peng_waktu = $request->get('pengaturan_waktu');
         $idx_alat_bantu = $request->get('alat_bantu');
 
-        try {
-            $svc = new Google_Service_Sheets($google_client);
-            $result = $svc->spreadsheets_values->get($spr_id, $range);
+//        try {
+//            $svc = new Google_Service_Sheets($google_client);
+//            $result = $svc->spreadsheets_values->get($spr_id, $range);
+//
+//        } catch (Google_Service_Exception $ex) {
+//            if ($ex->getCode() == 401) {
+//                \Auth::guard()->logout();
+//                $request->session()->flush();
+//                $request->session()->regenerate();
+//
+//                return response()->json(['success'=> false, 'error' => $ex->getMessage()])->setStatusCode(401);
+//            }
+//        } catch (\Exception $ex) {
+//            return response()->json(['success'=> false, 'error' => $ex->getMessage()])->setStatusCode(401);
+//        }
 
-        } catch (Google_Service_Exception $ex) {
-            if ($ex->getCode() == 401) {
-                \Auth::guard()->logout();
-                $request->session()->flush();
-                $request->session()->regenerate();
-
-                return response()->json(['success'=> false, 'error' => $ex->getMessage()])->setStatusCode(401);
-            }
-        } catch (\Exception $ex) {
-            return response()->json(['success'=> false, 'error' => $ex->getMessage()])->setStatusCode(401);
+        list($result, $error_message, $status_code) = $this->getSpreadsheets($spr_id, $range);
+        if (empty($result)) {
+            return response()->json(['success' => false, 'error' => $error_message], $status_code);
         }
 
         $sum_peng_materi = 0;
@@ -82,11 +147,11 @@ class ReportController extends Controller
 
         $ct = 0;
         foreach ($result->values as $value) {
-            $sum_peng_materi += $value[$idx_peng_materi];
-            $sum_sis_penyajian += $value[$idx_sis_penyajian];
-            $sum_mtd_penyajian += $value[$idx_mtd_penyajian];
-            $sum_peng_waktu += $value[$idx_peng_waktu];
-            $sum_alat_bantu += $value[$idx_alat_bantu];
+            $sum_peng_materi += $this->cleanScoreValue($value[$idx_peng_materi]);
+            $sum_sis_penyajian += $this->cleanScoreValue($value[$idx_sis_penyajian]);
+            $sum_mtd_penyajian += $this->cleanScoreValue($value[$idx_mtd_penyajian]);
+            $sum_peng_waktu += $this->cleanScoreValue($value[$idx_peng_waktu]);
+            $sum_alat_bantu += $this->cleanScoreValue($value[$idx_alat_bantu]);
             $ct++;
         }
 
@@ -283,6 +348,48 @@ class ReportController extends Controller
             }
         }
 
-        dd($response);
+        return response('', 201);
+    }
+
+    /**
+     * @param $spreadsheets_id
+     * @param $range
+     * @return array [\Google_Service_Sheets_ValueRange, string, int]
+     */
+    protected function getSpreadsheets($spreadsheets_id, $range)
+    {
+        try {
+            if (!$this->request->session()->has('gclient')) {
+                return [[], 'Please sign-in with Google', 401];
+            }
+            /**
+             * @var $gc$google_clientlient \Google_Client
+             */
+            $google_client = session('gclient');
+            $svc = new Google_Service_Sheets($google_client);
+            $result = $svc->spreadsheets_values->get($spreadsheets_id, $range);
+            return [$result, '', 200];
+
+        } catch (Google_Service_Exception $ex) {
+            if ($ex->getCode() == 401) {
+                \Auth::guard()->logout();
+                request()->session()->flush();
+                request()->session()->regenerate();
+                return [[], $ex->getMessage(), 401];
+            }
+
+            return [[], $ex->getMessage(), $ex->getCode()];
+        } catch (\Exception $ex) {
+            return [[], $ex->getMessage(), 500];
+        }
+    }
+
+    protected function cleanScoreValue($value) {
+        if (!is_int($value)) {
+            $v = substr($value, 0, 1);
+            return intval($v);
+        }
+
+        return $value;
     }
 }

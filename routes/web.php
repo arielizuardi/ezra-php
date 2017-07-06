@@ -41,10 +41,23 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
 Route::prefix('v1')->group(function() {
     Route::get('report', 'ReportController@get');
     Route::post('report', 'ReportController@generate');
+    Route::get('report/facilitator', 'ReportController@getFacilitatorReport');
     Route::post('report/facilitator', 'ReportController@generateReportFacilitator');
 
     Route::get('presenter', function(Request $request) {
         $fields = App\Presenter::all();
+        $data = [];
+        foreach ($fields as $field) {
+            $data[] = ['name' => $field->name , 'value' => $field->id , 'text' => $field->name];
+        }
+        $response['success'] = true;
+        $response['results'] = $data;
+
+        return response()->json($response);
+    });
+
+    Route::get('facilitator', function(Request $request) {
+        $fields = App\Facilitator::all();
         $data = [];
         foreach ($fields as $field) {
             $data[] = ['name' => $field->name , 'value' => $field->id , 'text' => $field->name];
