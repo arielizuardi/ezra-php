@@ -24,14 +24,7 @@
             body > .grid {
                 height: 100%;
             }
-            /*body{*/
-                /*position:relative;*/
-                /*background: url(images/main.jpg) no-repeat center center fixed;*/
 
-                /*width:100%;*/
-                /*height:100%;*/
-                /*margin:0*/
-            /*}*/
             body:after{
                 position:fixed;
                 content:"";
@@ -52,11 +45,20 @@
         <script src="{{ asset('js/semantic.min.js') }}"></script>
     </head>
     <body>
+    @if (session('flash_message'))
+    <div class="ui modal">
+        <div class="header">Message</div>
+        <div class="content">
+            {{ session('flash_message') }}
+        </div>
+    </div>
+    @endif
 
-    <div class="ui middle aligned right aligned container grid">
+    <div class="ui middle aligned left aligned container grid">
             <div class="column">
                 <h1 class="ui inverted header">
-                    Welcome to Community Of Leaders
+                    <div class="ui inverted sub header">Welcome to, </div>
+                    Community Of Leaders | Jakarta Praise Community Church
                 </h1>
                 <a style="background-color: #4285F4" class="ui google plus huge button" href="{{ url('auth/google') }}">
                     <i class="google icon"></i>
@@ -65,5 +67,10 @@
         </div>
     </div>
 
+    <script>
+        @if (session('flash_message'))
+        $('.ui.modal').modal('show');
+        @endif
+    </script>
     </body>
 </html>

@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use Google_Service_Sheets;
 use Google_Client;
 
+define('GOOGLE_CLIENT_SESSION_KEY', 'gclient');
 
 class LoginController extends Controller
 {
@@ -71,22 +73,26 @@ class LoginController extends Controller
      */
     public function handleProviderCallback()
     {
-        $user = Socialite::driver('google')->user();
-        $authUser = $this->findOrCreateUser($user, 'google');
-        Auth::login($authUser, true);
-
+        $socialite_user = Socialite::driver('google')->user();
         $google_client_token = [
-            'access_token' => $user->token,
-            'refresh_token' => $user->refreshToken,
-            'expires_in' => $user->expiresIn
+            'access_token' => $socialite_user->token,
+            'refresh_token' => $socialite_user->refreshToken,
+            'expires_in' => $socialite_user->expiresIn
         ];
 
-        $client = new Google_Client();
-        $client->setApplicationName("Ezra");
-        $client->setDeveloperKey(env('GOOGLE_SERVER_KEY'));
-        $client->setAccessToken(json_encode($google_client_token));
+        $google_client = new Google_Client();
+        $google_client->setApplicationName("Ezra");
+        $google_client->setDeveloperKey(env('GOOGLE_SERVER_KEY'));
+        $google_client->setAccessToken(json_encode($google_client_token));
 
-        session(['gclient' => $client]);
+        $user = $this->findUser($socialite_user);
+        if (empty($user)) {
+            $google_client->revokeToken();
+            return redirect('/')->with('flash_message', 'Email kamu belum terdaftar di dalam sistem kami. Silahkan hubungi administrator.');
+        }
+
+        Auth::login($user, true);
+        session([GOOGLE_CLIENT_SESSION_KEY => $google_client]);
 
         return redirect('/dashboard/report');
     }
@@ -112,5 +118,36 @@ class LoginController extends Controller
             'provider_access_token' => $user->token,
             'avatar' => str_replace('?sz=50', '', $user->avatar),
         ]);
+    }
+
+    public function findUser($socialite_user)
+    {
+        return User::where('provider_id', $socialite_user->id)->first();
+    }
+
+    /**
+     * Log the user out of the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function logout(Request $request)
+    {
+        if (!empty(session(GOOGLE_CLIENT_SESSION_KEY))) {
+            /**
+             * @var $google_client Google_Client
+             */
+            $google_client = session(GOOGLE_CLIENT_SESSION_KEY);
+            $google_client->revokeToken();
+        }
+
+
+        $this->guard()->logout();
+
+        $request->session()->flush();
+
+        $request->session()->regenerate();
+
+        return redirect('/');
     }
 }

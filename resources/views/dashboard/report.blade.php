@@ -93,8 +93,15 @@
             onResponse: function (response) {
                 var data = response.data;
                 // make some adjustments to response
-                var gdata = google.visualization.arrayToDataTable(data);
+                if (data.length == 0) {
+                    $('#report_dimmer').removeClass('active');
+                    alert('Data not found');
+                    $('#chart_div').empty();
 
+                    return response;
+                }
+
+                var gdata = google.visualization.arrayToDataTable(data);
                 google.charts.setOnLoadCallback(drawMaterial(gdata));
 
                 $('#report_dimmer').removeClass('active');
@@ -104,7 +111,6 @@
                 alert('Whoops something went wrong. Contact your administrator.');
                 console.log(xhr.status);
                 console.log(errorMessage);
-                window.location.href = '{{ url('/') }}';
             }
         });
 

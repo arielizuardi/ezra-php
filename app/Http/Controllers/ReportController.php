@@ -18,12 +18,12 @@ class ReportController extends Controller
         $this->request = $request;
     }
 
-    public function get(Request $request)
+    public function getPresenterReport()
     {
-        $batch = $request->get('batch');
-        $year = $request->get('year');
-        $session = $request->get('session');
-        $presenter_id = $request->get('presenter_id');
+        $batch = $this->request->get('batch');
+        $year = $this->request->get('year');
+        $session = $this->request->get('session');
+        $presenter_id = $this->request->get('presenter_id');
 
         $report = ReportSettings::where('batch', '=', $batch)
             ->where('year', '=', $year)
@@ -37,9 +37,23 @@ class ReportController extends Controller
                 'message' => 'OK',
                 'data' => []
             ];
+
+            return response()->json($response);
         }
 
-        return response()->json($this->jsonResponse($report));
+        $avg_report_presenters = \DB::table('report_settings')
+            ->selectRaw('
+                AVG(penguasaan_materi) as penguasaan_materi,
+                AVG(sistematika_penyajian) as sistematika_penyajian,
+                AVG(metode_penyajian) as metode_penyajian,
+                AVG(pengaturan_waktu) as pengaturan_waktu,
+                AVG(alat_bantu) as alat_bantu
+            ')
+            ->where('batch', '=', $batch)
+            ->where('year', '=', $year)
+            ->first();
+
+        return response()->json($this->jsonResponse($report, $avg_report_presenters));
     }
 
     public function getFacilitatorReport(Request $request)
@@ -95,44 +109,20 @@ class ReportController extends Controller
         return response()->json($response);
     }
 
-    public function generate(Request $request)
+    public function generatePresenterReport()
     {
-        /**
-         * @var $gclient \Google_Client
-         */
-        $google_client = session('gclient');
-        if (!$google_client) {
-            dd('Oops something wrong with client');
-        }
+        $spr_id = $this->request->get('spr_id');
+        $range = $this->request->get('range');
+        $batch = $this->request->get('batch');
+        $year = $this->request->get('year');
+        $session = $this->request->get('session');
+        $presenter_id = $this->request->get('presenter_id');
 
-        $spr_id = $request->get('spr_id');
-        $range = $request->get('range');
-        $batch = $request->get('batch');
-        $year = $request->get('year');
-        $session = $request->get('session');
-        $presenter_id = $request->get('presenter_id');
-
-        $idx_peng_materi = $request->get('penguasaan_materi');
-        $idx_sis_penyajian = $request->get('sistematika_penyajian');
-        $idx_mtd_penyajian = $request->get('metode_penyajian');
-        $idx_peng_waktu = $request->get('pengaturan_waktu');
-        $idx_alat_bantu = $request->get('alat_bantu');
-
-//        try {
-//            $svc = new Google_Service_Sheets($google_client);
-//            $result = $svc->spreadsheets_values->get($spr_id, $range);
-//
-//        } catch (Google_Service_Exception $ex) {
-//            if ($ex->getCode() == 401) {
-//                \Auth::guard()->logout();
-//                $request->session()->flush();
-//                $request->session()->regenerate();
-//
-//                return response()->json(['success'=> false, 'error' => $ex->getMessage()])->setStatusCode(401);
-//            }
-//        } catch (\Exception $ex) {
-//            return response()->json(['success'=> false, 'error' => $ex->getMessage()])->setStatusCode(401);
-//        }
+        $idx_peng_materi = $this->request->get('penguasaan_materi');
+        $idx_sis_penyajian = $this->request->get('sistematika_penyajian');
+        $idx_mtd_penyajian = $this->request->get('metode_penyajian');
+        $idx_peng_waktu = $this->request->get('pengaturan_waktu');
+        $idx_alat_bantu = $this->request->get('alat_bantu');
 
         list($result, $error_message, $status_code) = $this->getSpreadsheets($spr_id, $range);
         if (empty($result)) {
@@ -205,7 +195,7 @@ class ReportController extends Controller
         return $report;
     }
 
-    protected function jsonResponse(ReportSettings $report)
+    protected function jsonResponse(ReportSettings $report, $avg_report_presenters = null)
     {
         $vals = [
             ['Rata-rata', 'Score'],
@@ -216,6 +206,17 @@ class ReportController extends Controller
             ['Penggunaan Alat Bantu', floatval($report->alat_bantu)]
         ];
 
+        if (!empty($avg_report_presenters)) {
+            $vals = [
+                ['Rata-rata', 'Score', 'Average All Presenter Score'],
+                ['Penguasaan Materi', floatval($report->penguasaan_materi), floatval($avg_report_presenters->penguasaan_materi)],
+                ['Sistematika Penyajian', floatval($report->sistematika_penyajian), floatval($avg_report_presenters->sistematika_penyajian)],
+                ['Metode Penyajian', floatval($report->metode_penyajian), floatval($avg_report_presenters->metode_penyajian)],
+                ['Pengaturan Waktu', floatval($report->pengaturan_waktu), floatval($avg_report_presenters->pengaturan_waktu)],
+                ['Penggunaan Alat Bantu', floatval($report->alat_bantu), floatval($avg_report_presenters->alat_bantu)]
+            ];
+        }
+
         $response = [
             'success' => true,
             'message' => 'OK',
@@ -225,44 +226,25 @@ class ReportController extends Controller
         return $response;
     }
 
-    public function generateReportFacilitator(Request $request)
+    public function generateReportFacilitator()
     {
-        /**
-         * @var $gclient \Google_Client
-         */
-        $google_client = session('gclient');
-        if (!$google_client) {
-            dd('Oops something wrong with client');
-        }
+        $spr_id = $this->request->get('spr_id');
+        $range = $this->request->get('range');
+        $batch = $this->request->get('batch');
+        $year = $this->request->get('year');
 
-        $spr_id = $request->get('spr_id');
-        $range = $request->get('range');
-        $batch = $request->get('batch');
-        $year = $request->get('year');
+        $idx_nama_facilitator = $this->request->get('nama_facilitator');
+        $idx_menjelaskan_tujuan = $this->request->get('menjelaskan_tujuan');
+        $idx_membangun_hubungan = $this->request->get('membangun_hubungan');
+        $idx_mengajak_berdiskusi = $this->request->get('mengajak_berdiskusi');
+        $idx_memimpin_proses_diskusi = $this->request->get('memimpin_proses_diskusi');
+        $idx_mampu_menjawab_pertanyaan = $this->request->get('mampu_menjawab_pertanyaan');
+        $idx_kedalaman_materi = $this->request->get('kedalaman_materi');
+        $idx_penampilan = $this->request->get('penampilan');
 
-        $idx_nama_facilitator = $request->get('nama_facilitator');
-        $idx_menjelaskan_tujuan = $request->get('menjelaskan_tujuan');
-        $idx_membangun_hubungan = $request->get('membangun_hubungan');
-        $idx_mengajak_berdiskusi = $request->get('mengajak_berdiskusi');
-        $idx_memimpin_proses_diskusi = $request->get('memimpin_proses_diskusi');
-        $idx_mampu_menjawab_pertanyaan = $request->get('mampu_menjawab_pertanyaan');
-        $idx_kedalaman_materi = $request->get('kedalaman_materi');
-        $idx_penampilan = $request->get('penampilan');
-
-        try {
-            $svc = new Google_Service_Sheets($google_client);
-            $result = $svc->spreadsheets_values->get($spr_id, $range);
-
-        } catch (Google_Service_Exception $ex) {
-            if ($ex->getCode() == 401) {
-                \Auth::guard()->logout();
-                $request->session()->flush();
-                $request->session()->regenerate();
-
-                return response()->json(['success'=> false, 'error' => $ex->getMessage()])->setStatusCode(401);
-            }
-        } catch (\Exception $ex) {
-            return response()->json(['success'=> false, 'error' => $ex->getMessage()])->setStatusCode(401);
+        list($result, $error_message, $status_code) = $this->getSpreadsheets($spr_id, $range);
+        if (empty($result)) {
+            return response()->json(['success' => false, 'error' => $error_message], $status_code);
         }
 
         $values = [];
@@ -391,5 +373,82 @@ class ReportController extends Controller
         }
 
         return $value;
+    }
+
+
+    public function importAllReportFacilitator() {
+        $spr_id = '1vvtnjF662u2AeZ9eOgOqcCNyZf8Q1KyGrEW6oskRIR4';
+        $range = 'Database CF!A1:P515';
+        list($result, $error_message, $status_code) = $this->getSpreadsheets($spr_id, $range);
+        if (empty($result)) {
+            return response()->json(['success' => false, 'error' => $error_message], $status_code);
+        }
+
+        $values = [];
+
+        foreach ($result->values as $i => $value) {
+
+            if ($i == 0) {
+                continue;
+            }
+
+            $b = isset($value[1]) ? $value[1]: '';
+            $batch = trim(str_replace('Batch','', $b));
+            $values[] = [
+                'batch' => $batch,
+                'year' => $value[0],
+                'nama' => $value[2],
+                'stage' => isset($value[3]) ? $value[3]: '',
+                'grup' => isset($value[4]) ? $value[4]: '',
+                'comments'=> isset($value[15]) ? $value[15]: '',
+                'menjelaskan_tujuan' => $this->filterDecimalValue($value, 5),
+                'membangun_hubungan' => $this->filterDecimalValue($value, 6),
+                'mengajak_berdiskusi' => $this->filterDecimalValue($value, 7),
+                'memimpin_proses_diskusi' => $this->filterDecimalValue($value, 8),
+                'mampu_menjawab_pertanyaan' => $this->filterDecimalValue($value, 9),
+                'kedalaman_materi' => $this->filterDecimalValue($value, 10),
+                'penampilan' => $this->filterDecimalValue($value, 11),
+                'avg_feedback' => $this->filterDecimalValue($value, 12),
+                'kehadiran' => $this->filterDecimalValue($value, 13),
+                'score_kehadiran' => $this->filterDecimalValue($value, 14)
+            ];
+        }
+
+        $collection = collect($values);
+        $group_by_names = $collection->groupBy('nama');
+        $keys = $group_by_names->keys();
+
+        foreach ($keys as $key) {
+            $name = $key;
+            $facilitator = Facilitator::where('name', '=', $name)->first();
+            if (empty($facilitator)) {
+                $facilitator = new Facilitator();
+                $facilitator->name = $name;
+                if (!$facilitator->save()) {
+                    throw new \Exception('Failed to save facilitator', 500);
+                }
+            }
+
+            foreach ($group_by_names[$key] as $feedback_report) {
+               $feedback_report['facilitator_id'] = $facilitator->id;
+               $facilitator_report = new FacilitatorReport($feedback_report);
+                if (!$facilitator_report->save()) {
+                    throw new \Exception('Failed to save facilitator report', 500);
+                }
+            }
+        }
+
+        return response()->json(['success' => true])->setStatusCode(200);
+    }
+
+    protected function filterDecimalValue($val = [], $idx)
+    {
+        if (isset($val[$idx])) {
+            if (!empty($val[$idx])) {
+                return floatval($val[$idx]);
+            }
+        }
+
+        return 0;
     }
 }

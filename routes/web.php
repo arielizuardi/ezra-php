@@ -36,11 +36,13 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::get('facilitator/report', function () {
         return view('dashboard.facilreport');
     });
+
+    //Route::get('importall', 'ReportController@importAllReportFacilitator');
 });
 
 Route::prefix('v1')->group(function() {
-    Route::get('report', 'ReportController@get');
-    Route::post('report', 'ReportController@generate');
+    Route::get('report', 'ReportController@getPresenterReport');
+    Route::post('report', 'ReportController@generatePresenterReport');
     Route::get('report/facilitator', 'ReportController@getFacilitatorReport');
     Route::post('report/facilitator', 'ReportController@generateReportFacilitator');
 
