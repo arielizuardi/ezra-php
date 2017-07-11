@@ -122,7 +122,7 @@ class LoginController extends Controller
 
     public function findUser($socialite_user)
     {
-        return User::where('provider_id', $socialite_user->id)->first();
+        return User::where('email', $socialite_user->email)->first();
     }
 
     /**
