@@ -58,7 +58,7 @@
             <div class="column">
                 <h1 class="ui inverted header">
                     <div class="ui inverted sub header">Welcome to, </div>
-                    Community Of Leaders | Jakarta Praise Community Church
+                    Community Of Leaders &nbsp;|&nbsp; Jakarta Praise Community Church
                 </h1>
                 <a style="background-color: #4285F4" class="ui google plus huge button" href="{{ url('auth/google') }}">
                     <i class="google icon"></i>
