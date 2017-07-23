@@ -15,27 +15,12 @@
                 </form>
             </div>
         </div>
-        <a class="item" href="{{ url('dashboard/gsheet') }}">
-            <i class="block table icon"></i>
-            <i class="block google icon"></i>
-            Import from Google Spreadsheets for Presenter
-        </a>
-
-        <a class="item" href="{{ url('dashboard/report') }}">
-            <i class="block bar chart icon"></i>
-            View Report Presenter
-        </a>
-
-        <a class="item" href="{{ url('dashboard/facilitator/gsheet') }}">
-            <i class="block table icon"></i>
-            <i class="block google icon"></i>
-            Import from Google Spreadsheets for Facilitator
-        </a>
-
-        <a class="item" href="{{ url('dashboard/facilitator/report') }}">
-            <i class="block bar chart icon"></i>
-            View Report Facilitator
-        </a>
+        @foreach (\Auth::user()->role->menus as $menu)
+            <a class="item" href="{{ url($menu->redirect_to) }}">
+                <i class="{{ $menu->icon }}"></i>
+                {{ $menu->display_name }}
+            </a>
+        @endforeach
     </div>
     <div class="pusher">
         <div class="ui basic segment">

@@ -43,8 +43,12 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
 Route::prefix('v1')->group(function() {
     Route::get('report', 'ReportController@getPresenterReport');
     Route::post('report', 'ReportController@generatePresenterReport');
+
     Route::get('report/facilitator', 'ReportController@getFacilitatorReport');
-    Route::post('report/facilitator', 'ReportController@generateReportFacilitator');
+    Route::post('report/facilitator', 'FacilitatorReportController@generateReportFacilitator');
+
+    Route::get('report/facilitator/top10', 'FacilitatorReportController@top10Facilitators');
+
 
     Route::get('presenter', function(Request $request) {
         $fields = App\Presenter::all();

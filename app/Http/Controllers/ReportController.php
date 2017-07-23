@@ -7,6 +7,7 @@ use App\ReportSettings;
 use Google_Service_Exception;
 use Google_Service_Sheets;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 
 class ReportController extends Controller
