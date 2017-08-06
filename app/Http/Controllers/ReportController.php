@@ -424,7 +424,7 @@ class ReportController extends Controller
             $facilitator = Facilitator::where('name', '=', $name)->first();
             if (empty($facilitator)) {
                 $facilitator = new Facilitator();
-                $facilitator->name = $name;
+                $facilitator->name = strtoupper($name);
                 if (!$facilitator->save()) {
                     throw new \Exception('Failed to save facilitator', 500);
                 }

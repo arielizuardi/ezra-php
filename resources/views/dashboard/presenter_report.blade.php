@@ -132,7 +132,8 @@
         $('.ui.dropdown').dropdown({
             apiSettings: {
                 url: '//ezra.dev/v1/presenter'
-            }
+            },
+            filterRemoteData: true
         });
     </script>
 @endsection
