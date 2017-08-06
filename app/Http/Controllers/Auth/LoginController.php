@@ -85,7 +85,7 @@ class LoginController extends Controller
         $google_client->setDeveloperKey(env('GOOGLE_SERVER_KEY'));
         $google_client->setAccessToken(json_encode($google_client_token));
 
-        $user = $this->findOrCreateUser($socialite_user, 'google');
+        $user = $this->findUser($socialite_user);
         if (empty($user)) {
             $google_client->revokeToken();
             return redirect('/')->with('flash_message', 'Email kamu belum terdaftar di dalam sistem kami. Silahkan hubungi administrator.');
@@ -122,7 +122,14 @@ class LoginController extends Controller
 
     public function findUser($socialite_user)
     {
-        return User::where('email', $socialite_user->email)->first();
+        $user = User::where('email', $socialite_user->email)->first();
+        $user->provider = 'google';
+        $user->provider_id = $socialite_user->id;
+        $user->provider_access_token = $socialite_user->token;
+        $user->avatar = str_replace('?sz=50', '', $socialite_user->avatar);
+        $user->save();
+
+        return $user;
     }
 
     /**
