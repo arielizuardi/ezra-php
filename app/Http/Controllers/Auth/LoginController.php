@@ -85,7 +85,7 @@ class LoginController extends Controller
         $google_client->setDeveloperKey(env('GOOGLE_SERVER_KEY'));
         $google_client->setAccessToken(json_encode($google_client_token));
 
-        $user = $this->findUser($socialite_user);
+        $user = $this->findOrCreateUser($socialite_user, 'google');
         if (empty($user)) {
             $google_client->revokeToken();
             return redirect('/')->with('flash_message', 'Email kamu belum terdaftar di dalam sistem kami. Silahkan hubungi administrator.');
