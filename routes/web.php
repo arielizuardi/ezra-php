@@ -18,7 +18,7 @@ Route::get('/', function () {
 
 Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::get('/', function () {
-        return view('dashboard.index');
+        return view('dashboard.welcome');
     });
 
     Route::get('import-presenter-report', function () {
