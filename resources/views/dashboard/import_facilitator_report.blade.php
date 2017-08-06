@@ -33,7 +33,7 @@
                     <div class="fields">
                         <div class="one field">
                             <label>Nama Facilitator</label>
-                            <input type="text" name="nama_facilitator" id="nama_facilitator" maxlength="2"
+                            <input type="text" name="nama" id="nama" maxlength="2"
                                    placeholder="Index of nama_facilitator">
                         </div>
 
@@ -111,7 +111,7 @@
         function drawMaterial(google_visualization_data) {
             var materialOptions = {
                 chart: {
-                    title: 'Report Presenter'
+                    title: 'Report Facilitator'
                 },
                 hAxis: {
                     title: 'Score',
@@ -127,23 +127,17 @@
         }
 
         $('.submit-spreadsheet-btn').api({
-            action: 'generate report facilitator',
+            action: 'save all facilitator report',
             serializeForm: true,
             method: 'POST',
             on: 'click',
             beforeSend: function (settings) {
                 // form data is editable in before send
-                $('#report_dimmer').addClass('active');
                 return settings;
             },
             onResponse: function (response) {
-                var data = response.data;
-                // make some adjustments to response
-                var gdata = google.visualization.arrayToDataTable(data);
-
-                google.charts.setOnLoadCallback(drawMaterial(gdata));
-
-                $('#report_dimmer').removeClass('active');
+                alert('Successfully import facilitator feedback');
+                    // make some adjustments to response
                 return response;
             },
             onError: function (errorMessage, element, xhr) {

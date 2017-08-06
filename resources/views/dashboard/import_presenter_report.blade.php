@@ -28,7 +28,7 @@
                         <div class="four field">
                             <label>Presenter</label>
                             <div class="ui search selection dropdown">
-                                <input type="hidden" name="presenter_id"/>
+                                <input type="hidden" name="presenter_id" id="presenter_id"/>
                                 <i class="dropdown icon"></i>
                                 <input type="text" class="search"/>
                                 <div class="default text">
@@ -122,11 +122,12 @@
         }
 
         $('.submit-spreadsheet-btn').api({
-            action: 'generate report',
+            action: 'save presenter report',
             serializeForm: true,
             method: 'POST',
             on: 'click',
             beforeSend: function (settings) {
+                settings.urlData.presenter_id = $('#presenter_id').val();
                 // form data is editable in before send
                 $('#report_dimmer').addClass('active');
                 return settings;

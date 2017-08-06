@@ -21,34 +21,30 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
         return view('dashboard.index');
     });
 
-    Route::get('gsheet', function () {
-        return view('dashboard.gsheetimporter');
+    Route::get('import-presenter-report', function () {
+        return view('dashboard.import_presenter_report');
     });
 
-    Route::get('report', function () {
-        return view('dashboard.report');
+    Route::get('presenter-report', function () {
+        return view('dashboard.presenter_report');
     });
 
-    Route::get('facilitator/gsheet', function () {
-        return view('dashboard.facilgsheetimporter');
+    Route::get('import-facilitator-report', function () {
+        return view('dashboard.import_facilitator_report');
     });
 
-    Route::get('facilitator/report', function () {
-        return view('dashboard.facilreport');
+    Route::get('facilitator-report', function () {
+        return view('dashboard.facilitator_report');
     });
 
     //Route::get('importall', 'ReportController@importAllReportFacilitator');
 });
 
 Route::prefix('v1')->group(function() {
-    Route::get('report', 'ReportController@getPresenterReport');
-    Route::post('report', 'ReportController@generatePresenterReport');
-
-    Route::get('report/facilitator', 'ReportController@getFacilitatorReport');
-    Route::post('report/facilitator', 'FacilitatorReportController@generateReportFacilitator');
-
-    Route::get('report/facilitator/top10', 'FacilitatorReportController@top10Facilitators');
-
+    Route::get('presenter/{presenter_id}/report', 'PresenterController@fetchPresenterReport');
+    Route::post('presenter/{presenter_id}/report',  'PresenterController@savePresenterReport');
+    Route::get('facilitator/{facilitator_id}/report', 'FacilitatorController@fetchFacilitatorReport');
+    Route::post('facilitator-report', 'FacilitatorController@saveFacilitatorReports');
 
     Route::get('presenter', function(Request $request) {
         $fields = App\Presenter::all();
