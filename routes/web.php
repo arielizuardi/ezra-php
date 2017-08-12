@@ -40,7 +40,7 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     //Route::get('importall', 'ReportController@importAllReportFacilitator');
 });
 
-Route::prefix('v1')->group(function() {
+Route::prefix('v1')->middleware('cors')->group(function() {
     Route::get('presenter/{presenter_id}/report', 'PresenterController@fetchPresenterReport');
     Route::post('presenter/{presenter_id}/report',  'PresenterController@savePresenterReport');
     Route::get('facilitator/{facilitator_id}/report', 'FacilitatorController@fetchFacilitatorReport');
