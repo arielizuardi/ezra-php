@@ -61,7 +61,12 @@ class FacilitatorController extends Controller
         $facilitator_scores = $this->facilitator_usecase->fetchFacilitatorScores($result, $index);
         $unprocessed_names = $facilitator_scores->groupBy('nama')->keys();
         foreach ($unprocessed_names as $unprocessed_name) {
-            $explodes = explode('=', $unprocessed_name);
+            if (str_contains($unprocessed_name, ':')) {
+                $explodes = explode(':', $unprocessed_name);
+            } else {
+                $explodes = explode('=', $unprocessed_name);
+            }
+
             $name = trim($explodes[1]);
             $facilitator = $this->facilitator_usecase->saveFacilitator($name);
             if (empty($facilitator)){
