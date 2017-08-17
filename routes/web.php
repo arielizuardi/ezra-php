@@ -59,7 +59,7 @@ Route::prefix('v1')->middleware('cors')->group(function() {
     Route::post('facilitator-report', 'FacilitatorController@saveFacilitatorReports');
 
     Route::get('presenter', function(Request $request) {
-        $fields = App\Presenter::all();
+        $fields = App\Presenter::where('id','>','0')->orderBy('name', 'ASC')->get();
         $data = [];
         foreach ($fields as $field) {
             $data[] = ['name' => $field->name , 'value' => $field->id , 'text' => $field->name];
@@ -83,7 +83,7 @@ Route::prefix('v1')->middleware('cors')->group(function() {
     });
 
     Route::get('feedback/field', function(Request $request) {
-        $fields = App\FeedbackField::where('id','>','0')->orderBy('name', 'ASC')->get();
+        $fields = App\FeedbackField::all();
         $data = [];
         foreach ($fields as $field) {
             $data[] = ['name' => $field->name , 'value' => $field->id , 'text' => $field->name];
