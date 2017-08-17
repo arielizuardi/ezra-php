@@ -129,9 +129,11 @@
             }
         });
 
+        var dropdownUrl = '{{ url('/v1/presenter') }}';
         $('.ui.dropdown').dropdown({
             apiSettings: {
-                url: '//ezra.dev/v1/presenter'
+                url: dropdownUrl,
+                cache: false
             },
             filterRemoteData: true
         });

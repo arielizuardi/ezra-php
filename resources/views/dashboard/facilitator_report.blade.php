@@ -110,11 +110,14 @@
             }
         });
 
+        var dropdownUrl = '{{ url('/v1/facilitator') }}';
         $('.ui.dropdown').dropdown({
             apiSettings: {
-                url: '//ezra.dev/v1/facilitator'
+                url: dropdownUrl,
+                cache: false
             },
             filterRemoteData: true
         });
+
     </script>
 @endsection
