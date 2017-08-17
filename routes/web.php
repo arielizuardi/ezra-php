@@ -71,7 +71,7 @@ Route::prefix('v1')->middleware('cors')->group(function() {
     });
 
     Route::get('facilitator', function(Request $request) {
-        $fields = App\Facilitator::all();
+        $fields = App\Facilitator::where('id','>','0')->orderBy('name', 'ASC')->get();
         $data = [];
         foreach ($fields as $field) {
             $data[] = ['name' => $field->name , 'value' => $field->id , 'text' => $field->name];
@@ -83,7 +83,7 @@ Route::prefix('v1')->middleware('cors')->group(function() {
     });
 
     Route::get('feedback/field', function(Request $request) {
-        $fields = App\FeedbackField::all();
+        $fields = App\FeedbackField::where('id','>','0')->orderBy('name', 'ASC')->get();
         $data = [];
         foreach ($fields as $field) {
             $data[] = ['name' => $field->name , 'value' => $field->id , 'text' => $field->name];
