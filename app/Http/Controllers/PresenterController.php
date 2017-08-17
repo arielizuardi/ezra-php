@@ -114,7 +114,7 @@ class PresenterController extends Controller
             /**
              * @var $gc$google_clientlient \Google_Client
              */
-            $google_client = session('gclient');
+            $google_client = unserialize(session('gclient'));
             $svc = new Google_Service_Sheets($google_client);
             $result = $svc->spreadsheets_values->get($spreadsheets_id, $range);
             return [$result, '', 200];
