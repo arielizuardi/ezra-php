@@ -24,7 +24,7 @@ class SpreadsheetsHelper
              * @var $gc $google_client \Google_Client
              */
             $google_client = session('gclient');
-            $svc = new Google_Service_Sheets($google_client);
+            $svc = new Google_Service_Sheets(unserialize($google_client));
             $result = $svc->spreadsheets_values->get($spreadsheets_id, $range);
             return [$result, '', 200];
 

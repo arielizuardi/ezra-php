@@ -92,7 +92,7 @@ class LoginController extends Controller
         }
 
         Auth::login($user, true);
-        session([GOOGLE_CLIENT_SESSION_KEY => $google_client]);
+        session([GOOGLE_CLIENT_SESSION_KEY => serialize($google_client)]);
 
         return redirect('/dashboard');
     }
