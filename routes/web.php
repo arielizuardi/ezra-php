@@ -37,6 +37,18 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
         return view('dashboard.facilitator_report');
     });
 
+    Route::get('/facilitator/{base64id}/report', function ($base64id) {
+        $decoded_facilitator_id = base64_decode($base64id);
+        $temp = explode(':', $decoded_facilitator_id);
+        return view('dashboard.view_facilitator_report', ['facilitator_id' => $temp[1]]);
+    });
+
+    Route::get('/presenter/{base64id}/report', function ($base64id) {
+        $decoded_presenter_id = base64_decode($base64id);
+        $temp = explode(':', $decoded_presenter_id);
+        return view('dashboard.view_presenter_report', ['presenter_id' => $temp[1]]);
+    });
+
     //Route::get('importall', 'ReportController@importAllReportFacilitator');
 });
 

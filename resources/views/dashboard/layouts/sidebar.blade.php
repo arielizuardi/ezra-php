@@ -16,10 +16,26 @@
             </div>
         </div>
         @foreach (\Auth::user()->role->menus as $menu)
-            <a class="item" href="{{ url($menu->redirect_to) }}">
-                <i class="{{ $menu->icon }}"></i>
-                {{ $menu->display_name }}
-            </a>
+            @if(str_contains($menu->redirect_to, 'id') and str_contains($menu->redirect_to, 'facilitator'))
+                @if (!empty(\Auth::user()->facilitator_id))
+                <a class="item" href="{{ url(str_replace('id', base64_encode('facilitator:'.\Auth::user()->facilitator_id), $menu->redirect_to)) }}">
+                    <i class="{{ $menu->icon }}"></i>
+                    {{ $menu->display_name }}
+                </a>
+                @endif
+            @elseif(str_contains($menu->redirect_to, 'id') and str_contains($menu->redirect_to, 'presenter'))
+                @if (!empty(\Auth::user()->presenter_id))
+                <a class="item" href="{{ url(str_replace('id', base64_encode('presenter:'.\Auth::user()->presenter_id), $menu->redirect_to)) }}">
+                    <i class="{{ $menu->icon }}"></i>
+                    {{ $menu->display_name }}
+                </a>
+                @endif
+            @else
+                <a class="item" href="{{ url($menu->redirect_to) }}">
+                    <i class="{{ $menu->icon }}"></i>
+                    {{ $menu->display_name }}
+                </a>
+            @endif
         @endforeach
     </div>
     <div class="pusher">
