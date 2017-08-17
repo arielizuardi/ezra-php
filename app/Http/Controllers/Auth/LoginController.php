@@ -144,7 +144,7 @@ class LoginController extends Controller
             /**
              * @var $google_client Google_Client
              */
-            $google_client = session(GOOGLE_CLIENT_SESSION_KEY);
+            $google_client = unserialize(session(GOOGLE_CLIENT_SESSION_KEY));
             $google_client->revokeToken();
         }
 
