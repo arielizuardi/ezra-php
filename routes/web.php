@@ -15,8 +15,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
-Route::prefix('dashboard')->middleware('auth')->group(function () {
+Route::prefix('dashboard')->middleware('google')->group(function () {
     Route::get('/', function () {
         return view('dashboard.welcome');
     });
@@ -93,9 +92,7 @@ Route::prefix('v1')->middleware('cors')->group(function() {
 
         return response()->json($response);
     });
+
+    Route::post('signin', 'Auth\GoogleLoginController@signInWithGoogle');
+    Route::post('signout', 'Auth\GoogleLoginController@signOutGoogle');
 });
-
-Route::get('auth/google', 'Auth\LoginController@redirectToProvider');
-Route::get('auth/google/callback', 'Auth\LoginController@handleProviderCallback');
-
-Auth::routes();

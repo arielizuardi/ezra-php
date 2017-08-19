@@ -4,7 +4,7 @@
 
     </title>
     <link rel="stylesheet" type="text/css" href="{{ asset('css/semantic.min.css') }}">
-
+    <meta name="google-signin-client_id" content="{{ env('GOOGLE_CLIENT_ID') }}">
 </head>
 <body>
     @include('dashboard.layouts.sidebar')
@@ -26,6 +26,14 @@
         'save all facilitator report': '/v1/facilitator-report'
     };
 </script>
+<script>
+    function onLoad() {
+        gapi.load('auth2', function() {
+            gapi.auth2.init();
+        });
+    }
+</script>
+<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
 @yield('script')
 </body>
 </html>
