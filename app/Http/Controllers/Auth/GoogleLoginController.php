@@ -41,14 +41,17 @@ class GoogleLoginController extends Controller
             return response()->json(['error' => 'Email required'], 400);
         }
 
+        $auth_response = $request->get('auth_response');
+        if (empty($auth_response)) {
+            return response()->json(['error' => 'Email required'], 400);
+        }
+
         $user = User::where('email', $email)->first();
         if (empty($user)) {
             return response()->json(['error' => 'Unauthorized user'], 401);
         }
 
-        $auth_response = $request->get('auth_response');
         $access_token = $auth_response['access_token'];
-
         $user->provider_id = $request->get('id');
         $user->provider_access_token = $access_token;
         $user->avatar = str_replace('?sz=50', '', $request->get('avatar'));
