@@ -36,27 +36,17 @@
         @endforeach
     </div>
     <div class="pusher">
-        <div class="ui basic segment">
-            @yield('content')
+        {{--<div class="ui basic segment">--}}
+            {{--@yield('content')--}}
+        {{--</div>--}}
+    <div class="ui basic segment">
+        <div class="ui grid">
+            <div class="row">
+                <div class="twelve wide column">
+                    @yield('content')
+                </div>
+            </div>
         </div>
     </div>
+    </div>
 </div>
-@section('script')
-    <script>
-        function signOut() {
-            var token = '{{ csrf_token() }}';
-            var logoutUrl = '{{ url('/v1/signout') }}';
-            $.post(logoutUrl, {
-                _token: token
-            })
-            .done(function (data) {
-                var auth2 = gapi.auth2.getAuthInstance();
-                auth2.signOut();
-            }).fail(function (xhr){
-                console.log(xhr.status);
-            }).always(function () {
-                window.location.href = "/";
-            });
-        }
-    </script>
-@endsection

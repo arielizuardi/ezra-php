@@ -32,6 +32,22 @@
             gapi.auth2.init();
         });
     }
+
+    function signOut() {
+        var token = '{{ csrf_token() }}';
+        var logoutUrl = '{{ url('/v1/signout') }}';
+        $.post(logoutUrl, {
+            _token: token
+        })
+            .done(function (data) {
+                var auth2 = gapi.auth2.getAuthInstance();
+                auth2.signOut();
+            }).fail(function (xhr){
+            console.log(xhr.status);
+        }).always(function () {
+            window.location.href = "/";
+        });
+    }
 </script>
 <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
 @yield('script')

@@ -72,6 +72,8 @@
             console.log('Name: ' + profile.getName());
             console.log('Image URL: ' + profile.getImageUrl());
             console.log('Email: ' + profile.getEmail());
+            console.log('Auth Response: ' + googleUser.getAuthResponse());
+
             var id_token = googleUser.getAuthResponse().id_token;
 
             var signInUrl = '{{ url('/v1/signin') }}';
@@ -83,15 +85,17 @@
                 avatar: profile.getImageUrl(),
                 email: profile.getEmail(),
                 id_token: id_token,
-                auth_response: googleUser.getAuthResponse()
+                auth_response: googleUser.getAuthResponse(true)
             })
-                .done(function (data) {
-                    console.log(data);
-                    redirect_to = data.redirect_to;
-                    window.location.href = redirect_to;
+                .done(function (data, success, response) {
+                    if (response.status == 200) {
+                        var redirect_to = data.redirect_to;
+                        window.location.href = redirect_to;
+                    }
                 })
                 .fail(function (xhr) {
                     var statusCode = xhr.status;
+
                     if (statusCode == 401) {
                         alert('Anda belum terdaftar sebagai user. Silahkan hubungi administrator untuk melakukan registrasi.');
                     }

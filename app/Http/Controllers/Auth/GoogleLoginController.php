@@ -43,13 +43,15 @@ class GoogleLoginController extends Controller
 
         $auth_response = $request->get('auth_response');
         if (empty($auth_response)) {
-            return response()->json(['error' => 'Email required'], 400);
+            return response()->json(['error' => 'Auth Response Required', 'detail' => json_encode($auth_response)], 400);
         }
 
         $user = User::where('email', $email)->first();
         if (empty($user)) {
             return response()->json(['error' => 'Unauthorized user'], 401);
         }
+
+        \Log::info($auth_response);
 
         $access_token = $auth_response['access_token'];
         $user->provider_id = $request->get('id');
