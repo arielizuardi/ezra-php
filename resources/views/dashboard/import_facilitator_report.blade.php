@@ -1,131 +1,100 @@
 @extends('dashboard.layouts.master')
 @section('content')
-    <div class="ui grid">
-        <div class="row">
-            <div class="twelve wide column">
-
-                <form class="ui form sheets-form">
-                    {{ csrf_field() }}
-                    <div class="fields">
-                        <div class="one field">
-                            <label>Batch</label>
-                            <input type="text" name="batch" id="batch" maxlength="2" placeholder="Batch">
-                        </div>
-
-                        <div class="one field">
-                            <label>Year</label>
-                            <input type="text" name="year" id="year" maxlength="4" placeholder="Year">
-                        </div>
-
-                    </div>
-
-                    <div class="fields">
-                        <div class="six wide field">
-                            <label>Spreadsheets ID </label>
-                            <input type="text" name="spr_id" id="spr_id" placeholder="Spreadsheets ID" value="1KlNr_ziiiznhOrbdQrMvXGQ-gLW2pCVc3wphN1kp44g">
-                        </div>
-                        <div class="six wide field">
-                            <label>Range</label>
-                            <input type="text" name="range" id="range" placeholder="Range" value="Form Responses 1!A1:M554">
-                        </div>
-                    </div>
-
-                    <div class="fields">
-                        <div class="one field">
-                            <label>Nama Facilitator</label>
-                            <input type="text" name="nama" id="nama" maxlength="2"
-                                   placeholder="Index of nama_facilitator">
-                        </div>
-
-                        <div class="one field">
-                            <label>Mampu menjelaskan tujuan dan manfaat kelas ini dengan baik</label>
-                            <input type="text" name="menjelaskan_tujuan" id="menjelaskan_tujuan" maxlength="2"
-                                   placeholder="Index of menjelaskan_tujuan">
-                        </div>
-
-                        <div class="one field">
-                            <label>Membangun hubungan baik dengan saya</label>
-                            <input type="text" name="membangun_hubungan" id="membangun_hubungan" maxlength="2"
-                                   placeholder="Index of membangun_hubungan">
-                        </div>
-
-                        <div class="one field">
-                            <label>Mampu mengajak peserta untuk berdiskusi</label>
-                            <input type="text" name="mengajak_berdiskusi" id="mengajak_berdiskusi" maxlength="2"
-                                   placeholder="Index of mengajak_berdiskusi">
-                        </div>
-                    </div>
-
-                    <div class="fields">
-                        <div class="one field">
-                            <label>Mampu membuat proses diskusi berjalan dengan baik</label>
-                            <input type="text" name="memimpin_proses_diskusi" id="memimpin_proses_diskusi" maxlength="2"
-                                   placeholder="Index of memimpin_proses_diskusi">
-                        </div>
-
-                        <div class="one field">
-                            <label>Mampu menjawab pertanyaan / concern yang ada selama diskusi kelompok & memberikan
-                                feedback yang bermanfaat</label>
-                            <input type="text" name="mampu_menjawab_pertanyaan" id="mampu_menjawab_pertanyaan"
-                                   maxlength="2"
-                                   placeholder="Index of mampu_menjawab_pertanyaan">
-                        </div>
-
-                        <div class="one field">
-                            <label>Memiliki kedalaman materi yang dibutuhkan</label>
-                            <input type="text" name="kedalaman_materi" id="kedalaman_materi" maxlength="2"
-                                   placeholder="Index of kedalaman_materi">
-                        </div>
-
-                        <div class="one field">
-                            <label>Bersikap profesional, berbusana rapi serta berperilaku & bertutur kata sopan </label>
-                            <input type="text" name="penampilan" id="penampilan" maxlength="2"
-                                   placeholder="Index of penampilan">
-                        </div>
-
-                    </div>
-
-                    <button class="ui button submit-spreadsheet-btn" type="submit">Submit</button>
-                </form>
-            </div>
-        </div>
-        <div class="row">
-            <div class="ten wide column">
-                <div id="chart_div"></div>
-                <div class="ui">
-                    <div class="ui centered inline loader" id="report_dimmer">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
+    <h2 class="ui header">Facilitator Report Importer
+        <div class="sub header">Import your Google Spreadsheets Documents</div>
+    </h2>
+    <div class="ui hidden negative message">
+        <i class="close icon"></i>
+        <div class="header">Whoops!</div>
+        <p class="content"></p>
+        <b><p class="todo"></p></b>
     </div>
+    <div class="ui hidden info message">
+        <i class="close icon"></i>
+        <div class="header">Info</div>
+        <p class="content">
+        </p>
+    </div>
+    <div class="ui divider"></div>
+
+    <form class="ui form sheets-form">
+        {{ csrf_field() }}
+        <div class="fields">
+            <div class="one field">
+                <label>Batch</label>
+                <input type="number" name="batch" id="batch" min="1" max="20">
+            </div>
+
+            <div class="one field">
+                <label>Year</label>
+                <input type="number" name="year" id="year" min="1900" max="2100">
+            </div>
+
+        </div>
+
+        <div class="fields">
+            <div class="six wide field">
+                <label>Spreadsheets ID </label>
+                <input type="text" name="spr_id" id="spr_id" placeholder="e.g 1KlNr_ziiiznhOrbdQrMvXGQ-gLW2pCVc3wphN1kp44g">
+            </div>
+            <div class="six wide field">
+                <label>Range</label>
+                <input type="text" name="range" id="range" placeholder="e.g Form Responses 1!A1:M554">
+            </div>
+        </div>
+
+        <h3 class="ui dividing header">Index - Column Location</h3>
+        <div class="fields">
+            <div class="one field">
+                <label data-position="top center" data-tooltip="Nama Facilitator">Nama facilitator</label>
+                <input type="number" name="nama" id="nama" min="0" max="20">
+            </div>
+
+            <div class="one field">
+                <label data-position="top center" data-tooltip="Mampu menjelaskan tujuan dan manfaat kelas ini dengan baik">Menjelaskan tujuan</label>
+                <input type="number" name="menjelaskan_tujuan" id="menjelaskan_tujuan" min="0" max="20">
+            </div>
+
+            <div class="one field">
+                <label data-position="top center" data-tooltip="Membangun hubungan baik dengan saya">Membangun hubungan</label>
+                <input type="number" name="membangun_hubungan" id="membangun_hubungan" min="0" max="20">
+            </div>
+
+            <div class="one field">
+                <label data-position="top center" data-tooltip="Mampu mengajak peserta untuk berdiskusi">Mengajak berdiskusi</label>
+                <input type="number" name="mengajak_berdiskusi" id="mengajak_berdiskusi" min="0" max="20">
+            </div>
+
+            <div class="one field">
+                <label data-position="top center" data-tooltip="Mampu membuat proses diskusi berjalan dengan baik">Memimpin proses diskusi</label>
+                <input type="number" name="memimpin_proses_diskusi" id="memimpin_proses_diskusi" min="0" max="20">
+            </div>
+        </div>
+
+        <div class="fields">
+            <div class="one field">
+                <label data-position="right center" data-tooltip="Mampu menjawab pertanyaan / concern yang ada selama diskusi kelompok & memberikan
+                    feedback yang bermanfaat">Mampu menjawab pertanyaan</label>
+                <input type="number" name="mampu_menjawab_pertanyaan" id="mampu_menjawab_pertanyaan" min="0" max="20">
+            </div>
+
+            <div class="one field">
+                <label data-position="top center" data-tooltip="Memiliki kedalaman materi yang dibutuhkan">Kedalaman materi</label>
+                <input type="number" name="kedalaman_materi" id="kedalaman_materi" min="0" max="20">
+            </div>
+
+            <div class="one field">
+                <label data-position="top center" data-tooltip="Bersikap profesional, berbusana rapi serta berperilaku & bertutur kata sopan">Penampilan</label>
+                <input type="number" name="penampilan" id="penampilan" min="0" max="20">
+            </div>
+
+        </div>
+        <button class="ui button submit-spreadsheet-btn" type="submit">Submit</button>
+    </form>
 @endsection
 
 @section('script')
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-        google.charts.load('current', {packages: ['corechart', 'bar']});
-
-        function drawMaterial(google_visualization_data) {
-            var materialOptions = {
-                chart: {
-                    title: 'Report Facilitator'
-                },
-                hAxis: {
-                    title: 'Score',
-                    minValue: 0,
-                },
-                vAxis: {
-                    title: 'Rata-rata'
-                },
-                bars: 'horizontal'
-            };
-            var materialChart = new google.charts.Bar(document.getElementById('chart_div'));
-            materialChart.draw(google_visualization_data, materialOptions);
-        }
-
         $('.submit-spreadsheet-btn').api({
             action: 'save all facilitator report',
             serializeForm: true,
@@ -136,23 +105,32 @@
                 return settings;
             },
             onResponse: function (response) {
-                alert('Successfully import facilitator feedback');
-                    // make some adjustments to response
+                if (response.success == true) {
+                    $('.info .content').after('Import Success!');
+                    $('.info').removeClass('hidden');
+                    $('.info').addClass('visible');
+                }
+
+                $('#report_dimmer').removeClass('active');
                 return response;
             },
             onError: function (errorMessage, element, xhr) {
 
                 if (xhr.status == 401) {
-                    console.log(errorMessage);
-                    //window.location.href = '{{ url('auth/google') }}';
+                    $('.negative .content').after(errorMessage);
+                    $('.negative .todo').after('Please re-login <a href="/">here</a>');
                 } else {
-                    alert('Whoops something went wrong. Contact your administrator.');
-                    console.log(xhr.status);
-                    console.log(errorMessage);
-                    //window.location.href = '{{ url('/') }}';
+                    $('.negative .content').after('Whoops something went wrong. Contact your administrator.');
                 }
+
+                $('.negative').removeClass('hidden');
+                $('.negative').addClass('visible');
+                $('#report_dimmer').removeClass('active')
             }
         });
 
+        $('.message .close').on('click', function () {
+            $(this).closest('.message').transition('fade');
+        });
     </script>
 @endsection

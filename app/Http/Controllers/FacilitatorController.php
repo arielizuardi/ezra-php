@@ -61,10 +61,12 @@ class FacilitatorController extends Controller
         $facilitator_scores = $this->facilitator_usecase->fetchFacilitatorScores($result, $index);
         $unprocessed_names = $facilitator_scores->groupBy('nama')->keys();
         foreach ($unprocessed_names as $unprocessed_name) {
-            if (str_contains($unprocessed_name, ':')) {
-                $explodes = explode(':', $unprocessed_name);
-            } else {
+            if (str_contains($unprocessed_name, ':') and str_contains($unprocessed_name, '=')) {
                 $explodes = explode('=', $unprocessed_name);
+            } else if (str_contains($unprocessed_name, '=')){
+                $explodes = explode('=', $unprocessed_name);
+            } else {
+                $explodes = explode(':', $unprocessed_name);
             }
 
             $name = trim($explodes[1]);
@@ -86,6 +88,6 @@ class FacilitatorController extends Controller
             }
         }
 
-        return response()->json('', 201);
+        return response()->json(['success' => true], 200);
     }
 }

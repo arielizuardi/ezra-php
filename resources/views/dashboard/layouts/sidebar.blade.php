@@ -9,10 +9,7 @@
                     {{ \Auth::user()->name }}
                 </div>
                 <br/>
-                <form action="{{ url('logout') }}" method="POST">
-                    {{ csrf_field() }}
-                    <button class="ui button" type="submit">Logout</button>
-                </form>
+                <a href="#" onclick="signOut();">Sign out</a>
             </div>
         </div>
         @foreach (\Auth::user()->role->menus as $menu)
@@ -39,8 +36,17 @@
         @endforeach
     </div>
     <div class="pusher">
-        <div class="ui basic segment">
-            @yield('content')
+        {{--<div class="ui basic segment">--}}
+            {{--@yield('content')--}}
+        {{--</div>--}}
+    <div class="ui basic segment">
+        <div class="ui grid">
+            <div class="row">
+                <div class="twelve wide column">
+                    @yield('content')
+                </div>
+            </div>
         </div>
+    </div>
     </div>
 </div>
