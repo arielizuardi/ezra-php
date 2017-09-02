@@ -21,6 +21,7 @@
         'get data' : '/v1/data',
         'generate report': '/v1/report',
         'get facilitator report': '/v1/facilitator/{facilitator_id}/report',
+        'get facilitator comment': '/v1/facilitator/{facilitator_id}/comment',
         'get presenter report': '/v1/presenter/{presenter_id}/report',
         'save presenter report': '/v1/presenter/{presenter_id}/report',
         'save all facilitator report': '/v1/facilitator-report'

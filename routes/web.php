@@ -55,6 +55,8 @@ Route::prefix('v1')->middleware('cors')->group(function() {
     Route::get('presenter/{presenter_id}/report', 'PresenterController@fetchPresenterReport');
     Route::post('presenter/{presenter_id}/report',  'PresenterController@savePresenterReport');
     Route::get('facilitator/{facilitator_id}/report', 'FacilitatorController@fetchFacilitatorReport');
+    Route::get('facilitator/{facilitator_id}/comment', 'FacilitatorController@fetchComment');
+
     Route::post('facilitator-report', 'FacilitatorController@saveFacilitatorReports');
 
     Route::get('presenter', function(Request $request) {

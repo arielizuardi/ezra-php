@@ -46,6 +46,16 @@
         <h3 class="ui dividing header">Index - Column Location</h3>
         <div class="fields">
             <div class="one field">
+                <label data-position="top center" data-tooltip="Nama Partisipan">Nama Partisipan</label>
+                <input type="number" name="nama_partisipan" id="nama_partisipan" min="0" max="20">
+            </div>
+
+            <div class="one field">
+                <label data-position="top center" data-tooltip="DATE Partisipan">DATE Partisipan</label>
+                <input type="number" name="date_partisipan" id="date_partisipan" min="0" max="20">
+            </div>
+
+            <div class="one field">
                 <label data-position="top center" data-tooltip="Nama Facilitator">Nama facilitator</label>
                 <input type="number" name="nama" id="nama" min="0" max="20">
             </div>
@@ -86,6 +96,11 @@
             <div class="one field">
                 <label data-position="top center" data-tooltip="Bersikap profesional, berbusana rapi serta berperilaku & bertutur kata sopan">Penampilan</label>
                 <input type="number" name="penampilan" id="penampilan" min="0" max="20">
+            </div>
+
+            <div class="one field">
+                <label data-position="top center" data-tooltip="Masukan untuk facilitator">Masukan</label>
+                <input type="number" name="masukan" id="masukan" min="0" max="20">
             </div>
 
         </div>

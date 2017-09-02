@@ -27,6 +27,18 @@ class FacilitatorController extends Controller
         ];
     }
 
+    public function fetchComment($facilitator_id)
+    {
+        $from_year = $this->request->get('from_year');
+        $to_year = $this->request->get('to_year');
+        $comments = $this->facilitator_usecase->fetchComment($facilitator_id, $from_year, $to_year);
+        if (empty($comments)) {
+            return response()->json($this->http_response(true, 'OK', []));
+        }
+
+        return response()->json($this->http_response(true, 'OK', $comments));
+    }
+
     public function fetchFacilitatorReport($facilitator_id)
     {
         $from_year = $this->request->get('from_year');
@@ -60,6 +72,7 @@ class FacilitatorController extends Controller
          */
         $facilitator_scores = $this->facilitator_usecase->fetchFacilitatorScores($result, $index);
         $unprocessed_names = $facilitator_scores->groupBy('nama')->keys();
+
         foreach ($unprocessed_names as $unprocessed_name) {
             if (str_contains($unprocessed_name, ':') and str_contains($unprocessed_name, '=')) {
                 $explodes = explode('=', $unprocessed_name);
@@ -77,10 +90,14 @@ class FacilitatorController extends Controller
 
             $facilitator_score = $facilitator_scores->where('nama', $unprocessed_name)->all();
             $report_data = $this->facilitator_usecase->getAverageScores($facilitator_score);
+
+            $comments = $this->facilitator_usecase->getComments($facilitator_score);
+
             $report_data['batch'] = $batch;
             $report_data['year'] = $year;
             $report_data['facilitator_id'] = $facilitator->id;
             $report_data['nama'] = $facilitator->name;
+            $report_data['comments'] = $comments;
 
             $facilitator_report = $this->facilitator_usecase->saveFacilitatorReport($report_data);
             if (empty($facilitator_report)){
