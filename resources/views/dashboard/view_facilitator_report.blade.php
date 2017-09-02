@@ -42,22 +42,6 @@
             </div>
         </div>
 
-        {{--<div class="ui comments">--}}
-                    {{--<h3 class="ui dividing header">Comments</h3>--}}
-                    {{--<div class="comment">--}}
-                        {{--<div class="content">--}}
-                            {{--<a class="author">Matt</a>--}}
-                            {{--<div class="metadata">--}}
-                                {{--<span class="date">DATE Rasuna 1</span>--}}
-                                {{--<div class="ui star rating" data-rating="4" data-max-rating="4"></div> 3.5 out of 4--}}
-                            {{--</div>--}}
-                            {{--<div class="text">--}}
-                                {{--How artistic!--}}
-                            {{--</div>--}}
-                        {{--</div>--}}
-                    {{--</div>--}}
-                {{--</div>--}}
-
         <div class="row">
             <div class="ten wide column">
                 <div id="chart_div_header"></div>
@@ -125,7 +109,6 @@
                                     '<a class="author">' +currentItem.nama + '</a>' +
                                     '<div class="metadata">' +
                                         '<span class="date">'+ currentItem.date +'</span>' +
-                                        '<div class="ui star rating" data-rating="4" data-max-rating="4"></div> 4 out of 4' +
                                     '</div>' +
                                     '<div class="text">' +
                                         currentItem.masukan +
