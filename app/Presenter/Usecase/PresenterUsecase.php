@@ -160,4 +160,41 @@ class PresenterUsecase
         return $response->toArray();
     }
 
+    public function fetchComment($presenter_id, $session, $from_year, $to_year)
+    {
+        $presenter_reports = PresenterReport::where('presenter_id', '=', $presenter_id)
+            ->where('session', $session)
+            ->whereBetween('year', [$from_year, $to_year])
+            ->orderBy('year', 'ASC')
+            ->orderBy('batch', 'ASC')
+            ->get();
+
+        if ($presenter_reports->isEmpty()) {
+            return [];
+        }
+
+        $response = [];
+
+        foreach ($presenter_reports as $i => $item)
+        {
+            $key = $item->batch.':'.$item->year;
+            if (!empty($item->raw_like_comments)) {
+                $raw_like_comments = json_decode($item->raw_like_comments);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $response[$key]['raw_like_comments'] = $raw_like_comments;
+                }
+            }
+
+            if (!empty($item->raw_wish_comments)) {
+                $raw_wish_comments = json_decode($item->raw_wish_comments);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $response[$key]['raw_wish_comments'] = $raw_wish_comments;
+                }
+            }
+
+        }
+
+        return $response;
+    }
+
 }

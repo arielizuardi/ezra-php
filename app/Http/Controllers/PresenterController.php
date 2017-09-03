@@ -51,6 +51,20 @@ class PresenterController extends Controller
         return response()->json($this->http_response(true, 'OK', $presenter_reports));
     }
 
+    public function fetchComment($presenter_id)
+    {
+        $from_year = $this->request->get('from_year');
+        $to_year = $this->request->get('to_year');
+        $session = $this->request->get('session');
+
+        $comments = $this->presenter_usecase->fetchComment($presenter_id, $session, $from_year, $to_year);
+        if (empty($comments)) {
+            return response()->json($this->http_response(true, 'OK', []));
+        }
+
+        return response()->json($this->http_response(true, 'OK', $comments));
+    }
+
     public function savePresenterReport($presenter_id)
     {
         $spr_id = $this->request->get('spr_id');
