@@ -66,6 +66,16 @@
 
         <div class="fields">
             <div class="one field">
+                <label>Nama Partisipan</label>
+                <input type="number" name="nama_partisipan" id="nama_partisipan" min="0" max="20">
+            </div>
+
+            <div class="one field">
+                <label>DATE Partisipan</label>
+                <input type="number" name="date_partisipan" id="date_partisipan" min="0" max="20">
+            </div>
+
+            <div class="one field">
                 <label>Penguasaan Materi</label>
                 <input type="number" name="penguasaan_materi" id="penguasaan_materi" min="0" max="20">
             </div>
@@ -88,6 +98,16 @@
             <div class="one field">
                 <label>Penggunaan Alat Bantu</label>
                 <input type="number" name="alat_bantu" id="alat_bantu" min="0" max="20">
+            </div>
+
+            <div class="one field">
+                <label>Hal-hal yang disuka</label>
+                <input type="number" name="hal_yang_disuka" id="hal_yang_disuka" min="0" max="20">
+            </div>
+
+            <div class="one field">
+                <label>Hal-hal yang diharapkan</label>
+                <input type="number" name="hal_yang_diharapkan" id="hal_yang_diharapkan" min="0" max="20">
             </div>
         </div>
 

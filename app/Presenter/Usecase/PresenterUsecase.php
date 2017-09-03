@@ -8,12 +8,18 @@ use Google_Service_Sheets_ValueRange;
 class PresenterUsecase
 {
     public $keys = [
+        'nama_partisipan',
+        'date_partisipan',
         'penguasaan_materi',
         'sistematika_penyajian',
         'metode_penyajian',
         'pengaturan_waktu',
-        'alat_bantu'
+        'alat_bantu',
+        'hal_yang_disuka',
+        'hal_yang_diharapkan',
     ];
+
+    public $string_value_keys = ['nama_partisipan', 'date_partisipan', 'hal_yang_disuka', 'hal_yang_diharapkan'];
 
     public function getAverageReportPresentersData($batch, $year)
     {
@@ -50,25 +56,56 @@ class PresenterUsecase
         $avg = [];
         $sum = [];
 
-        foreach ($this->keys as $key) {
+        $keys = array_diff($this->keys, $this->string_value_keys);
+        foreach ($keys as $key) {
             $avg[$key] = 0;
             $sum[$key] = 0;
             $result[$key] = 0;
         }
 
         $ct = 0;
+
         foreach ($valueRange->values as $value) {
-            foreach ($this->keys as $key) {
+            foreach ($keys as $key) {
                 $sum[$key] += $this->cleanScoreValue($value[$index[$key]]);
             }
             $ct++;
         }
 
-        foreach ($this->keys as $key) {
+        foreach ($keys as $key) {
             $avg[$key] = $sum[$key]/$ct;
         }
 
         return $avg;
+    }
+
+    public function getComments(Google_Service_Sheets_ValueRange $valueRange, array $index)
+    {
+        $comments = [];
+        foreach ($valueRange->values as $i => $value) {
+
+            if ($i == 0) {
+                continue;
+            }
+
+            if (isset($value[$index['hal_yang_disuka']]) and strlen($value[$index['hal_yang_disuka']]) > 0) {
+                $temp = [];
+                $temp['nama'] = ucwords($value[$index['nama_partisipan']]);
+                $temp['date'] = ucwords($value[$index['date_partisipan']]);
+                $temp['hal_yang_disuka'] = ucwords($value[$index['hal_yang_disuka']], '.');
+                $comments['hal_yang_disuka'][] = $temp;
+            }
+
+            if (isset($value[$index['hal_yang_diharapkan']]) and strlen($value[$index['hal_yang_diharapkan']]) > 0) {
+                $temp = [];
+                $temp['nama'] = ucwords($value[$index['nama_partisipan']]);
+                $temp['date'] = ucwords($value[$index['date_partisipan']]);
+                $temp['hal_yang_diharapkan'] = ucwords($value[$index['hal_yang_diharapkan']],'.');
+                $comments['hal_yang_diharapkan'][] = $temp;
+            }
+        }
+
+        return $comments;
     }
 
     public function savePresenterReport($data)
@@ -90,6 +127,8 @@ class PresenterUsecase
         $report->metode_penyajian = $data['metode_penyajian'];
         $report->pengaturan_waktu = $data['pengaturan_waktu'];
         $report->alat_bantu = $data['alat_bantu'];
+        $report->raw_like_comments = $data['raw_like_comments'];
+        $report->raw_wish_comments = $data['raw_wish_comments'];
 
         return $report->save();
     }

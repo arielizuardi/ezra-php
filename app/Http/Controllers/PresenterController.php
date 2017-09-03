@@ -71,6 +71,7 @@ class PresenterController extends Controller
         }
 
         $report_data = $this->presenter_usecase->getAverageScores($result, $index);
+        $comments = $this->presenter_usecase->getComments($result, $index);
 
         $report_data['spr_id'] = $spr_id;
         $report_data['range'] = $range;
@@ -78,6 +79,10 @@ class PresenterController extends Controller
         $report_data['year'] = $year;
         $report_data['session'] = $session;
         $report_data['presenter_id'] = $presenter_id;
+        $report_data['raw_like_comments'] = isset($comments['hal_yang_disuka']) ? json_encode($comments['hal_yang_disuka']) : '';
+        $report_data['raw_wish_comments'] = isset($comments['hal_yang_diharapkan']) ? json_encode($comments['hal_yang_diharapkan']): '';
+
+        \Log::info($report_data);
 
         if (!$this->presenter_usecase->savePresenterReport($report_data)) {
             throw new \Exception('Failed to save report settings', 500);
