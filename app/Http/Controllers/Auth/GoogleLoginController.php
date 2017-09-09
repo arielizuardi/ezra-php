@@ -51,8 +51,6 @@ class GoogleLoginController extends Controller
             return response()->json(['error' => 'Unauthorized user'], 401);
         }
 
-        \Log::info($auth_response);
-
         $access_token = $auth_response['access_token'];
         $user->provider_id = $request->get('id');
         $user->provider_access_token = $access_token;

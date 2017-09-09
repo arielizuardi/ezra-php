@@ -53,8 +53,12 @@ Route::prefix('dashboard')->middleware('google')->group(function () {
 
 Route::prefix('v1')->middleware('cors')->group(function() {
     Route::get('presenter/{presenter_id}/report', 'PresenterController@fetchPresenterReport');
+    Route::get('presenter/{presenter_id}/comment', 'PresenterController@fetchComment');
+
     Route::post('presenter/{presenter_id}/report',  'PresenterController@savePresenterReport');
     Route::get('facilitator/{facilitator_id}/report', 'FacilitatorController@fetchFacilitatorReport');
+    Route::get('facilitator/{facilitator_id}/comment', 'FacilitatorController@fetchComment');
+
     Route::post('facilitator-report', 'FacilitatorController@saveFacilitatorReports');
 
     Route::get('presenter', function(Request $request) {
